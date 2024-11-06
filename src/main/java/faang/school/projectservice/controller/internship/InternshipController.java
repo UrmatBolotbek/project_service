@@ -1,6 +1,7 @@
 package faang.school.projectservice.controller.internship;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
+import faang.school.projectservice.dto.internship.InternshipFilterDto;
 import faang.school.projectservice.exeption.DataValidationException;
 import faang.school.projectservice.model.Internship;
 import faang.school.projectservice.model.TeamMember;
@@ -20,6 +21,10 @@ public class InternshipController {
         validateDescriptionAndName(internshipDto);
         validateQuantityOfMembers(internshipDto);
         internshipService.addInternship(internshipDto);
+    }
+
+    public List<InternshipDto> getInternshipsOfProjectWithFilters(long projectId, InternshipFilterDto filters) {
+      return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);
     }
 
     private void validateDescriptionAndName(InternshipDto internshipDto) {

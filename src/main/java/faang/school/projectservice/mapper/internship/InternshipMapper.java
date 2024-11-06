@@ -20,6 +20,10 @@ public interface InternshipMapper {
     @Mapping(source = "interns", target = "internsId", qualifiedByName = "toInternshipIds")
     InternshipDto toInternshipDto(Internship internship);
 
+    List<Internship> toInternships(List<InternshipDto> internshipDtos);
+
+    List<InternshipDto> toInternshipDtos(List<Internship> internships);
+
     default List<Long> toInternshipIds(List<Internship> internships) {
       return internships.stream().map(Internship::getId).toList();
     }
