@@ -23,9 +23,9 @@ public class InternshipController {
         internshipService.addInternship(internshipDto);
     }
 
-    public void updateInternship(InternshipDto internshipDto) {
-
-    }
+//    public void updateInternship(InternshipDto internshipDto) {
+//        internshipService.updateInternship(internshipDto);
+//    }
 
     public List<InternshipDto> getInternshipsOfProjectWithFilters(long projectId, InternshipFilterDto filters) {
         return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);
