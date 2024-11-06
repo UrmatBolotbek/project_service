@@ -23,8 +23,20 @@ public class InternshipController {
         internshipService.addInternship(internshipDto);
     }
 
+    public void updateInternship(InternshipDto internshipDto) {
+
+    }
+
     public List<InternshipDto> getInternshipsOfProjectWithFilters(long projectId, InternshipFilterDto filters) {
-      return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);
+        return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);
+    }
+
+    public List<InternshipDto> getAllInternships() {
+        return internshipService.getAllInternships();
+    }
+
+    public InternshipDto getInternshipById(long internshipId) {
+      return internshipService.getInternshipById(internshipId);
     }
 
     private void validateDescriptionAndName(InternshipDto internshipDto) {
