@@ -3,6 +3,7 @@ package faang.school.projectservice.dto.internship;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,5 +16,8 @@ public class InternshipDto {
     private List<Long> internsId;
     private String name;
     private String description;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+
 
 }

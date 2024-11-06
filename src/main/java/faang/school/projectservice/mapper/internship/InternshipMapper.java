@@ -24,5 +24,4 @@ public interface InternshipMapper {
       return internships.stream().map(Internship::getId).toList();
     }
 
-
 }
