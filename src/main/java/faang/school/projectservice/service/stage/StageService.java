@@ -1,13 +1,15 @@
 package faang.school.projectservice.service.stage;
 
-import faang.school.projectservice.dto.stage.StageDto;
+import faang.school.projectservice.dto.stage.StageDtoGeneral;
+import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageFilterDto;
-import faang.school.projectservice.mapper.stage.StageMapper;
+import faang.school.projectservice.mapper.stage.StageMapperGeneral;
+import faang.school.projectservice.mapper.stage.StageMapperWithRolesToFill;
 import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.repository.StageRepository;
 import faang.school.projectservice.service.stage.filters.StageFilter;
-import faang.school.projectservice.validator.Stage.StageServiceValidator;
+import faang.school.projectservice.validator.Stage.StageValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,22 +21,23 @@ import java.util.List;
 @Slf4j
 public class StageService {
     private final StageRepository stageRepository;
-    private final StageMapper stageMapper;
-    private final StageServiceValidator stageServiceValidator;
+    private final StageMapperGeneral stageMapperGeneral;
+    private final StageMapperWithRolesToFill stageMapperWithRolesToFill;
+    private final StageValidator stageValidator;
     private final List<StageFilter> stageFilters;
 
-    public StageDto create(StageDto stageDto) {
-        stageServiceValidator.validateProjectNotClosed(stageDto.getProject().getId());
-        stageServiceValidator.validateEveryTeamMemberHasRoleAtStage(stageDto);
+    public StageDtoWithRolesToFill create(StageDtoGeneral stageDtoGeneral) {
+        stageValidator.validateProjectNotClosed(stageDtoGeneral.getProject().getId());
+        stageValidator.validateEveryTeamMemberHasRoleAtStage(stageDtoGeneral);
 
-        stageDto.setId(null);
-        Stage stage = stageMapper.toEntity(stageDto);
+        stageDtoGeneral.setId(null);
+        Stage stage = stageMapperGeneral.toEntity(stageDtoGeneral);
         stageRepository.save(stage);
         log.info("Create new stage: {}", stage);
-        return stageMapper.toDto(stage);
+        return stageMapperWithRolesToFill.toDto(stage);
     }
 
-    public List<StageDto> getByFilter(StageFilterDto filters) {
+    public List<StageDtoGeneral> getByFilter(StageFilterDto filters) {
         List<Stage> stages = stageRepository.findAll();
         for (StageFilter filter : stageFilters) {
             if (filter != null && filter.isApplicable(filters)) {
@@ -42,11 +45,11 @@ public class StageService {
             }
         }
         log.info("Get stages by filter: {}", stages);
-        return stageMapper.toDto(stages);
+        return stageMapperGeneral.toDto(stages);
     }
 
-    public void delete(StageDto stageDto, StageDeletionOption option, StageDto targetStageDto) {
-        Stage stage = stageMapper.toEntity(stageDto);
+    public void delete(StageDtoGeneral stageDtoGeneral, StageDeletionOption option, StageDtoGeneral targetStageDtoGeneral) {
+        Stage stage = stageMapperGeneral.toEntity(stageDtoGeneral);
         switch (option) {
             case CASCADE_DELETE:
                 stage.getTasks().clear();
@@ -61,19 +64,19 @@ public class StageService {
                     }
                 });
                 stageRepository.delete(stage);
-                log.info("Delete stage: {} and set non-DONE tasks to CANCELLED", stageDto);
+                log.info("Delete stage: {} and set non-DONE tasks to CANCELLED", stageDtoGeneral);
                 break;
 
             case MOVE_TASKS_TO_ANOTHER_STAGE:
-                if (targetStageDto == null) {
+                if (targetStageDtoGeneral == null) {
                     throw new IllegalArgumentException("Target stage is required for moving tasks");
                 }
-                Stage targetStage = stageMapper.toEntity(targetStageDto);
+                Stage targetStage = stageMapperGeneral.toEntity(targetStageDtoGeneral);
                 targetStage.getTasks().addAll(stage.getTasks());
                 stage.getTasks().clear();
                 stageRepository.save(targetStage);
                 stageRepository.delete(stage);
-                log.info("Deleted stage: {} and moved tasks to stage {}", stageDto, targetStageDto);
+                log.info("Deleted stage: {} and moved tasks to stage {}", stageDtoGeneral, targetStageDtoGeneral);
                 break;
 
             default:
@@ -82,19 +85,19 @@ public class StageService {
         }
     }
 
-    public StageDto update(StageDto stageDto) {
-        stageServiceValidator.validateEveryTeamMemberHasRoleAtStage(stageDto);
-        stageServiceValidator.validateProjectNotClosed(stageDto.getProject().getId());
+    public StageDtoWithRolesToFill update(StageDtoGeneral stageDtoGeneral) {
+        stageValidator.validateEveryTeamMemberHasRoleAtStage(stageDtoGeneral);
+        stageValidator.validateProjectNotClosed(stageDtoGeneral.getProject().getId());
 
-        Stage stage = stageMapper.toEntity(stageDto);
+        Stage stage = stageMapperGeneral.toEntity(stageDtoGeneral);
         stageRepository.save(stage);
         log.info("Update stage: {}", stage);
-        return stageMapper.toDto(stage);
+        return stageMapperWithRolesToFill.toDto(stage);
     }
 
-    public List<StageDto> getAll() {
+    public List<StageDtoGeneral> getAll() {
         log.info("Get all stages");
-        return stageMapper.toDto(stageRepository.findAll());
+        return stageMapperGeneral.toDto(stageRepository.findAll());
     }
 
     public void deleteById(Long id) {

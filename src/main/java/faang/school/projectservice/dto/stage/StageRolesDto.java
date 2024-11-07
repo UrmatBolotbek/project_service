@@ -8,4 +8,9 @@ public class StageRolesDto {
     private long id;
     private TeamRole teamRole;
     private Integer count;
+
+    public StageRolesDto(TeamRole key, Integer value) {
+        this.teamRole = key;
+        this.count = value;
+    }
 }

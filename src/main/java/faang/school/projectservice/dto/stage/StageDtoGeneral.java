@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class StageDto {
+public class StageDtoGeneral {
     private Long id;
     private String name;
     private ProjectDto project;
