@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class InternshipTest {
+public class InternshipValidatorTest {
     @InjectMocks
     private InternshipValidator validator;
     private InternshipDto internshipDto;

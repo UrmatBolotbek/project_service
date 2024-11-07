@@ -5,7 +5,9 @@ import faang.school.projectservice.dto.internship.InternshipFilterDto;
 import faang.school.projectservice.exeption.DataValidationException;
 import faang.school.projectservice.mapper.internship.InternshipMapper;
 import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.InternshipStatus;
 import faang.school.projectservice.model.Project;
+import faang.school.projectservice.model.Task;
 import faang.school.projectservice.model.Team;
 import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.repository.InternshipRepository;
@@ -22,9 +24,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static faang.school.projectservice.model.TaskStatus.DONE;
 
 @Slf4j
 @Service
@@ -57,7 +62,48 @@ public class InternshipService {
         internshipRepository.save(internship);
     }
 
+    public void updateInternship(InternshipDto internshipDto) {
+        Long mentorId = internshipDto.getMentorId();
+        Long projectId = internshipDto.getProjectId();
+        TeamMember mentor = teamMemberRepository.findById(mentorId);
+        Project project = projectRepository.getProjectById(projectId);
+        List<Long> internsId = internshipDto.getInternsId();
+        List<TeamMember> teamMembers = internsId.stream().map(teamMemberRepository::findById).toList();
 
+        Internship internship = internshipMapper.toInternship(internshipDto);
+        internship.setInterns(teamMembers);
+        internship.setProject(project);
+        internship.setMentorId(mentor);
+
+        if (internship.getStatus() == InternshipStatus.COMPLETED) {
+            List<TeamMember> listOfMembers = internship.getInterns();
+            List<TeamMember> completed = new ArrayList<>();
+            for (TeamMember teamMember : listOfMembers) {
+                if(test(teamMember, project)) {
+                    teamMember.s
+                    completed.add(teamMember);
+                } else {
+                internship.getInterns().remove(teamMember);}
+            }
+
+        }
+    }
+
+    public boolean test(TeamMember member,Project project) {
+        List<Task> tasks = project.getTasks();
+
+        return tasks.stream().filter(task -> task.getPerformerUserId()
+                .equals(member.getUserId()))
+                .allMatch(task -> task.getStatus() == DONE);
+
+
+
+        internship.getProject().getTasks()
+
+
+
+
+    }
 
     public List<InternshipDto> getInternshipsOfProjectWithFilters(Long projectId, InternshipFilterDto filters) {
         Project project = projectRepository.getProjectById(projectId);
