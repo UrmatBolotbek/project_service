@@ -13,6 +13,7 @@ import faang.school.projectservice.repository.ProjectRepository;
 import faang.school.projectservice.repository.TeamMemberRepository;
 import faang.school.projectservice.repository.TeamRepository;
 import faang.school.projectservice.service.internship.internship_filter.InternshipFilter;
+import faang.school.projectservice.validator.internship_validator.InternshipValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,10 @@ public class InternshipService {
     private final TeamMemberRepository teamMemberRepository;
     private final ProjectRepository projectRepository;
     private final List<InternshipFilter> internshipFilters;
+    private final InternshipValidator validator;
 
     public void addInternship(InternshipDto internshipDto) {
+        validator.validate3MonthDuration(internshipDto);
         Long mentorId = internshipDto.getMentorId();
         Long projectId = internshipDto.getProjectId();
         TeamMember mentor = teamMemberRepository.findById(mentorId);
@@ -49,8 +52,7 @@ public class InternshipService {
         internship.setProject(project);
         internship.setMentorId(mentor);
 
-        validateMentorExistInTeamMembers(project, mentor);
-        validate3MonthDuration(internship);
+        validator.validateMentorExistInTeamMembers(project, mentor);
 
         internshipRepository.save(internship);
     }
@@ -63,7 +65,6 @@ public class InternshipService {
         internshipFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .forEach(filter -> filter.apply(allInternships, filters));
-        log.info("Getting a list of mentoring requests after filtering");
         return internshipMapper.toInternshipDtos(allInternships.toList());
 
 
@@ -80,28 +81,4 @@ public class InternshipService {
         }
         return internshipMapper.toInternshipDto(internship.get());
     }
-
-    private void validate3MonthDuration(Internship internship) {
-        LocalDateTime startInternship = internship.getStartDate();
-        LocalDateTime endInternship = internship.getEndDate();
-        long monthsDifference = ChronoUnit.MONTHS.between(startInternship, endInternship);
-        if (monthsDifference > 3) {
-            throw new IllegalArgumentException("The duration of the internship "
-                    + internship.getId() + "period exceeds 3 months");
-
-        }
-    }
-
-    private void validateMentorExistInTeamMembers(Project project, TeamMember mentor) {
-        List<Team> teamsOfProject = project.getTeams();
-        teamsOfProject.stream().filter(team -> team.getTeamMembers().contains(mentor))
-                .findAny()
-                .ifPresentOrElse(team -> {
-                            log.info("There is a mentor {} on the team {}", mentor.getId(), team.getId());
-                        },
-                        () -> {
-                            throw new DataValidationException("There is no mentor " + mentor.getId());
-                        });
-    }
-
 }

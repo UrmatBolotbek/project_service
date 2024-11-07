@@ -6,6 +6,7 @@ import faang.school.projectservice.exeption.DataValidationException;
 import faang.school.projectservice.model.Internship;
 import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.service.internship.InternshipService;
+import faang.school.projectservice.validator.internship_validator.InternshipValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 
@@ -16,10 +17,11 @@ import java.util.List;
 public class InternshipController {
 
     private final InternshipService internshipService;
+    private final InternshipValidator validator;
 
     public void addInternship(InternshipDto internshipDto) {
-        validateDescriptionAndName(internshipDto);
-        validateQuantityOfMembers(internshipDto);
+        validator.validateDescriptionAndName(internshipDto);
+        validator.validateQuantityOfMembers(internshipDto);
         internshipService.addInternship(internshipDto);
     }
 
@@ -38,25 +40,4 @@ public class InternshipController {
     public InternshipDto getInternshipById(long internshipId) {
       return internshipService.getInternshipById(internshipId);
     }
-
-    private void validateDescriptionAndName(InternshipDto internshipDto) {
-        String description = internshipDto.getDescription();
-        String name = internshipDto.getName();
-        long id = internshipDto.getId();
-        if (description == null || description.isEmpty()) {
-            throw new DataValidationException("Description by internship " + id + " is empty");
-        }
-        if (name == null || name.isEmpty()) {
-            throw new DataValidationException("Name by internship " + id + " is empty");
-        }
-    }
-
-    private void validateQuantityOfMembers(InternshipDto internshipDto) {
-        List<Long> interns = internshipDto.getInternsId();
-        if (interns == null || interns.isEmpty()) {
-            throw new IllegalArgumentException("No participants for internship");
-        }
-    }
-
-
 }

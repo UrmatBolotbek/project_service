@@ -2,8 +2,10 @@ package faang.school.projectservice.mapper.internship;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.TeamMember;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.List;
 
@@ -17,15 +19,16 @@ public interface InternshipMapper {
 
     @Mapping(source = "project.id", target = "projectId")
     @Mapping(source = "mentorId.id", target = "mentorId")
-    @Mapping(source = "interns", target = "internsId", qualifiedByName = "toInternshipIds")
+    @Mapping(source = "interns", target = "internsId", qualifiedByName = "toIds")
     InternshipDto toInternshipDto(Internship internship);
 
     List<Internship> toInternships(List<InternshipDto> internshipDtos);
 
     List<InternshipDto> toInternshipDtos(List<Internship> internships);
 
-    default List<Long> toInternshipIds(List<Internship> internships) {
-      return internships.stream().map(Internship::getId).toList();
+    @Named("toIds")
+    default List<Long> toInternshipIds(List<TeamMember> interns) {
+        return interns.stream().map(TeamMember::getId).toList();
     }
 
 }
