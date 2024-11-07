@@ -4,8 +4,12 @@ import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.dto.internship.InternshipFilterDto;
 import faang.school.projectservice.mapper.internship.InternshipMapperImpl;
 import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.InternshipStatus;
 import faang.school.projectservice.model.Project;
+import faang.school.projectservice.model.Task;
+import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.TeamMember;
+import faang.school.projectservice.model.TeamRole;
 import faang.school.projectservice.repository.InternshipRepository;
 import faang.school.projectservice.repository.ProjectRepository;
 import faang.school.projectservice.repository.TeamMemberRepository;
@@ -38,7 +42,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class InternshipServiceTest {
 
-
     private InternshipService internshipService;
 
     @Mock
@@ -57,11 +60,16 @@ public class InternshipServiceTest {
 
     private List<InternshipFilter> filters;
     private TeamMember mentor;
-    private TeamMember first_team_member;
-    private TeamMember second_team_member;
+    private TeamMember firstTeamMember;
+    private TeamMember secondTeamMember;
+    private TeamMember memberInProgress;
     private Project project;
     private InternshipDto internshipDto;
     private Internship internship;
+    private Task first_task;
+    private Task second_task;
+    private Task taskForMemberInProgress;
+    private InternshipDto internshipDtoInProgress;
 
     @BeforeEach
     public void initData() {
@@ -76,20 +84,33 @@ public class InternshipServiceTest {
                 validator
                 );
         mentor = TeamMember.builder().id(10L).build();
-        first_team_member = TeamMember.builder().id(1L).build();
-        second_team_member = TeamMember.builder().id(2L).build();
-        List<Long> internsId = new ArrayList<>(Arrays.asList(1L, 2L));
-
-        project = Project.builder().id(1L).build();
+        firstTeamMember = TeamMember.builder().id(1L).roles(List.of(TeamRole.INTERN)).build();
+        secondTeamMember = TeamMember.builder().id(2L).roles(List.of(TeamRole.INTERN)).build();
+        memberInProgress = TeamMember.builder().id(3L).roles(List.of(TeamRole.INTERN)).build();
+        List<Long> internsId = new ArrayList<>(Arrays.asList(1L, 2L, 3L));
+        first_task = Task.builder().performerUserId(1L).status(TaskStatus.DONE).build();
+        second_task = Task.builder().performerUserId(2L).status(TaskStatus.DONE).build();
+        taskForMemberInProgress = Task.builder().performerUserId(3L).status(TaskStatus.IN_PROGRESS).build();
+        List<Task> tasks = new ArrayList<>(Arrays.asList(first_task, second_task, taskForMemberInProgress));
+        project = Project.builder().id(1L).tasks(tasks).build();
         internshipDto = InternshipDto.builder()
                 .id(1L)
                 .mentorId(10L)
                 .projectId(1L)
+                .status(InternshipStatus.COMPLETED)
+                .internsId(internsId)
+                .build();
+        internshipDtoInProgress = InternshipDto.builder()
+                .id(1L)
+                .mentorId(10L)
+                .projectId(1L)
+                .status(InternshipStatus.IN_PROGRESS)
                 .internsId(internsId)
                 .build();
         internship = new Internship();
         internship.setId(1L);
-        internship.setInterns(List.of(first_team_member, second_team_member));
+        internship.setStatus(InternshipStatus.IN_PROGRESS);
+        internship.setInterns(List.of(firstTeamMember, secondTeamMember, memberInProgress));
         internship.setProject(project);
         internship.setMentorId(mentor);
     }
@@ -97,8 +118,8 @@ public class InternshipServiceTest {
     @Test
     public void testAddInternshipSuccess() {
         when(teamMemberRepository.findById(10L)).thenReturn(mentor);
-        when(teamMemberRepository.findById(1L)).thenReturn(first_team_member);
-        when(teamMemberRepository.findById(2L)).thenReturn(second_team_member);
+        when(teamMemberRepository.findById(1L)).thenReturn(firstTeamMember);
+        when(teamMemberRepository.findById(2L)).thenReturn(secondTeamMember);
         when(projectRepository.getProjectById(1L)).thenReturn(project);
 
         doNothing().when(validator).validateMentorExistInTeamMembers(project, mentor);
@@ -109,12 +130,48 @@ public class InternshipServiceTest {
         verify(internshipRepository).save(internshipCaptor.capture());
 
         internship = internshipCaptor.getValue();
-        List<TeamMember> expectedList = new ArrayList<>(Arrays.asList(first_team_member, second_team_member));
+        List<TeamMember> expectedList = new ArrayList<>(Arrays.asList(firstTeamMember, secondTeamMember));
         List<TeamMember> realList = internship.getInterns();
         assertEquals(expectedList, realList);
 
         assertEquals(mentor, internship.getMentorId());
         assertEquals(project, internship.getProject());
+
+    }
+
+    @Test
+    public void testUpdateInternshipWhenProjectInProgress() {
+        when(teamMemberRepository.findById(10L)).thenReturn(mentor);
+        when(teamMemberRepository.findById(1L)).thenReturn(firstTeamMember);
+        when(teamMemberRepository.findById(2L)).thenReturn(secondTeamMember);
+        when(teamMemberRepository.findById(3L)).thenReturn(memberInProgress);
+        when(projectRepository.getProjectById(1L)).thenReturn(project);
+        when(internshipRepository.findById(1L)).thenReturn(Optional.of(internship));
+
+        internshipService.updateInternship(internshipDtoInProgress, 1L);
+
+        verify(internshipRepository).save(internshipCaptor.capture());
+
+        assertEquals(List.of(TeamRole.DEVELOPER), firstTeamMember.getRoles());
+        assertEquals(List.of(TeamRole.DEVELOPER), secondTeamMember.getRoles());
+    }
+
+    @Test
+    public void testUpdateInternshipWhenProjectCompleted() {
+        when(teamMemberRepository.findById(10L)).thenReturn(mentor);
+        when(teamMemberRepository.findById(1L)).thenReturn(firstTeamMember);
+        when(teamMemberRepository.findById(2L)).thenReturn(secondTeamMember);
+        when(teamMemberRepository.findById(3L)).thenReturn(memberInProgress);
+        when(projectRepository.getProjectById(1L)).thenReturn(project);
+        when(internshipRepository.findById(1L)).thenReturn(Optional.of(internship));
+
+        internshipService.updateInternship(internshipDto, 1L);
+
+        verify(internshipRepository).save(internshipCaptor.capture());
+
+        assertEquals(List.of(TeamRole.DEVELOPER), firstTeamMember.getRoles());
+        assertEquals(List.of(TeamRole.DEVELOPER), secondTeamMember.getRoles());
+        assertEquals(internship.getInterns(), List.of(firstTeamMember, secondTeamMember));
 
     }
 
@@ -151,6 +208,6 @@ public class InternshipServiceTest {
     @Test
     public void testGetInternshipByIdWithNotExistingInternship() {
         when(internshipRepository.findById(112323L)).thenThrow(EntityNotFoundException.class);
-        assertThrows(IllegalArgumentException.class, () -> internshipService.getInternshipById(112323L));
+        assertThrows(EntityNotFoundException.class, () -> internshipService.getInternshipById(112323L));
     }
 }

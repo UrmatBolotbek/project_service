@@ -1,5 +1,6 @@
 package faang.school.projectservice.dto.internship;
 
+import faang.school.projectservice.model.InternshipStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class InternshipDto {
     private List<Long> internsId;
     private String name;
     private String description;
+    private InternshipStatus status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 

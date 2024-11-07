@@ -2,6 +2,8 @@ package faang.school.projectservice.validator.internship_validator;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.exeption.DataValidationException;
+import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.InternshipStatus;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.Team;
 import faang.school.projectservice.model.TeamMember;
@@ -10,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -56,6 +60,30 @@ public class InternshipValidator {
         List<Long> interns = internshipDto.getInternsId();
         if (interns == null || interns.isEmpty()) {
             throw new IllegalArgumentException("No participants for internship");
+        }
+    }
+
+    public void validateOfStatusInternship(Internship internship) {
+        if (internship.getStatus() == InternshipStatus.COMPLETED || internship.getStatus() == null) {
+            throw new DataValidationException("Internship " + internship.getId() + " not relevant");
+        }
+    }
+
+    public void validateOfAddNewPerson(Internship newInternship, Internship oldInternship) {
+        List<TeamMember> oldMembers = oldInternship.getInterns();
+        boolean result = new HashSet<>(oldMembers).containsAll(newInternship.getInterns());
+        if(!result) {
+            throw new DataValidationException("The new list of project participants includes additional" +
+                    " participants who were not previously involved in the project");
+        }
+    }
+
+    public void validateOfSameInternships(Internship newInternship, Internship oldInternship) {
+        if (!Objects.equals(newInternship.getId(), oldInternship.getId())) {
+            throw new IllegalArgumentException("Internships do not match by ID");
+        }
+        if (!Objects.equals(newInternship.getProject().getId(), oldInternship.getProject().getId())) {
+            throw new IllegalArgumentException("Internships do not match by project");
         }
     }
 
