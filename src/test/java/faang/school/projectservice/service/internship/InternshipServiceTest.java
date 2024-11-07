@@ -120,6 +120,7 @@ public class InternshipServiceTest {
         when(teamMemberRepository.findById(10L)).thenReturn(mentor);
         when(teamMemberRepository.findById(1L)).thenReturn(firstTeamMember);
         when(teamMemberRepository.findById(2L)).thenReturn(secondTeamMember);
+        when(teamMemberRepository.findById(3L)).thenReturn(memberInProgress);
         when(projectRepository.getProjectById(1L)).thenReturn(project);
 
         doNothing().when(validator).validateMentorExistInTeamMembers(project, mentor);
@@ -130,7 +131,7 @@ public class InternshipServiceTest {
         verify(internshipRepository).save(internshipCaptor.capture());
 
         internship = internshipCaptor.getValue();
-        List<TeamMember> expectedList = new ArrayList<>(Arrays.asList(firstTeamMember, secondTeamMember));
+        List<TeamMember> expectedList = new ArrayList<>(Arrays.asList(firstTeamMember, secondTeamMember,memberInProgress));
         List<TeamMember> realList = internship.getInterns();
         assertEquals(expectedList, realList);
 
@@ -171,7 +172,7 @@ public class InternshipServiceTest {
 
         assertEquals(List.of(TeamRole.DEVELOPER), firstTeamMember.getRoles());
         assertEquals(List.of(TeamRole.DEVELOPER), secondTeamMember.getRoles());
-        assertEquals(internship.getInterns(), List.of(firstTeamMember, secondTeamMember));
+        assertEquals(internshipCaptor.getValue().getInterns(), List.of(firstTeamMember, secondTeamMember));
 
     }
 
@@ -202,7 +203,7 @@ public class InternshipServiceTest {
     @Test
     public void testGetInternshipByIdSuccess() {
         when(internshipRepository.findById(1L)).thenReturn(Optional.ofNullable(internship));
-        assertEquals(internshipDto,internshipService.getInternshipById(1L));
+        assertEquals(internshipDtoInProgress,internshipService.getInternshipById(1L));
     }
 
     @Test

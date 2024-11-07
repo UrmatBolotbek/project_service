@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -63,7 +64,6 @@ public class InternshipService {
         internshipRepository.save(newInternship);
     }
 
-
     public boolean checkingTaskCompletion(TeamMember member, Project project) {
         List<Task> tasks = project.getTasks();
         return tasks.stream().filter(task -> task.getPerformerUserId()
@@ -95,16 +95,18 @@ public class InternshipService {
     }
 
     private void updateMemberAfterCompletedProject(Internship internship) {
-        List<TeamMember> listOfMembers = new ArrayList<>(internship.getInterns());
+        List<TeamMember> modifiableList = new ArrayList<>(internship.getInterns());
+        Iterator<TeamMember> iterator = modifiableList.iterator();
         Project project = internship.getProject();
-        for (TeamMember teamMember : listOfMembers) {
+        while (iterator.hasNext()) {
+            TeamMember teamMember = iterator.next();
             if (checkingTaskCompletion(teamMember, project)) {
                 teamMember.setRoles(List.of(TeamRole.DEVELOPER));
             } else {
-                listOfMembers.removeIf(member -> member.getId().equals(teamMember.getId()));
+                iterator.remove();
             }
         }
-        internship.setInterns(listOfMembers);
+        internship.setInterns(modifiableList);
     }
 
     private void updateMemberWhenProjectInProgress(Internship internship) {
