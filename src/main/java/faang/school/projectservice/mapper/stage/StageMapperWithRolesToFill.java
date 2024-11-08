@@ -2,6 +2,7 @@ package faang.school.projectservice.mapper.stage;
 
 import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageRolesDto;
+import faang.school.projectservice.mapper.executor.ExecutorMapper;
 import faang.school.projectservice.mapper.project.ProjectMapper;
 import faang.school.projectservice.mapper.role.StageRolesMapper;
 import faang.school.projectservice.mapper.task.TaskMapper;
@@ -21,13 +22,21 @@ import java.util.stream.Collectors;
         uses = {ProjectMapper.class,
                 StageRolesMapper.class,
                 TaskMapper.class,
-                ProjectMapper.class,},
+                ExecutorMapper.class},
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StageMapperWithRolesToFill {
+    //@Mapping(source = "project", target = "projectDt")
+    @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
+    @Mapping(source = "tasks", target = "tasksActiveAtStage")
+    @Mapping(source = "executors", target = "executorsActiveAtStage")
     @Mapping(target = "rolesToBeFilled", expression = "java(calculateRolesToBeFilled(stage))")
     StageDtoWithRolesToFill toDto(Stage stage);
 
+    //@Mapping(source = "project", target = "projectDto")
+    @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
+    @Mapping(source = "tasks", target = "tasksActiveAtStage")
+    @Mapping(source = "executors", target = "executorsActiveAtStage")
     @Mapping(target = "rolesToBeFilled", expression = "java(calculateRolesToBeFilled(stage))")
     List<StageDtoWithRolesToFill> toDto(List<Stage> stages);
 
