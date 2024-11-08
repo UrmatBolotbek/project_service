@@ -46,6 +46,7 @@ public class InternshipService {
 
         validator.validateMentorExistInTeamMembers(internship.getProject(), internship.getMentorId());
         internshipRepository.save(internship);
+        log.info("Added internship: {}", internship.getId());
     }
 
     public void updateInternship(InternshipDto internshipDto, long id) {
@@ -58,17 +59,15 @@ public class InternshipService {
 
         if (newInternship.getStatus() == InternshipStatus.COMPLETED) {
             updateMemberAfterCompletedProject(newInternship);
+            log.info("The internship {} is over, the participants who have completed the training" +
+                    " have updated their roles", newInternship.getId());
         } else if (newInternship.getStatus() == InternshipStatus.IN_PROGRESS) {
             updateMemberWhenProjectInProgress(newInternship);
+            log.info("The internship {} is not over, the participants who have completed the training" +
+                    " have updated their roles", newInternship.getId());
         }
         internshipRepository.save(newInternship);
-    }
-
-    public boolean checkingTaskCompletion(TeamMember member, Project project) {
-        List<Task> tasks = project.getTasks();
-        return tasks.stream().filter(task -> task.getPerformerUserId()
-                        .equals(member.getId()))
-                .allMatch(task -> task.getStatus() == DONE);
+        log.info("Updated internship: {}", newInternship.getId());
     }
 
     public List<InternshipDto> getInternshipsOfProjectWithFilters(Long projectId, InternshipFilterDto filters) {
@@ -77,12 +76,12 @@ public class InternshipService {
         internshipFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .forEach(filter -> filter.apply(allInternships, filters));
+        log.info("Obtaining project {} internships using a filter", projectId);
         return internshipMapper.toInternshipDtos(allInternships.toList());
-
-
     }
 
     public List<InternshipDto> getAllInternships() {
+        log.info("Obtaining all internships");
         return internshipMapper.toInternshipDtos(internshipRepository.findAll());
     }
 
@@ -91,7 +90,15 @@ public class InternshipService {
         if (internship.isEmpty()) {
             throw new EntityNotFoundException("Internship with id " + internshipId + " not found");
         }
+        log.info("Obtaining internship {}", internshipId);
         return internshipMapper.toInternshipDto(internship.get());
+    }
+
+    private boolean checkingTaskCompletion(TeamMember member, Project project) {
+        List<Task> tasks = project.getTasks();
+        return tasks.stream().filter(task -> task.getPerformerUserId()
+                        .equals(member.getId()))
+                .allMatch(task -> task.getStatus() == DONE);
     }
 
     private void updateMemberAfterCompletedProject(Internship internship) {

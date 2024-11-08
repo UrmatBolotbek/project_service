@@ -2,9 +2,6 @@ package faang.school.projectservice.controller.internship;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.dto.internship.InternshipFilterDto;
-import faang.school.projectservice.exeption.DataValidationException;
-import faang.school.projectservice.model.Internship;
-import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.service.internship.InternshipService;
 import faang.school.projectservice.validator.internship_validator.InternshipValidator;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +22,9 @@ public class InternshipController {
         internshipService.addInternship(internshipDto);
     }
 
-//    public void updateInternship(InternshipDto internshipDto) {
-//        internshipService.updateInternship(internshipDto);
-//    }
+    public void updateInternship(InternshipDto internshipDto, long internshipId) {
+        internshipService.updateInternship(internshipDto, internshipId);
+    }
 
     public List<InternshipDto> getInternshipsOfProjectWithFilters(long projectId, InternshipFilterDto filters) {
         return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);

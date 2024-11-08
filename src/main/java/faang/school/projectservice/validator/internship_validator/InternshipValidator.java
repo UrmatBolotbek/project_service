@@ -28,7 +28,6 @@ public class InternshipValidator {
         if (monthsDifference > 3) {
             throw new IllegalArgumentException("The duration of the internship "
                     + internshipDto.getId() + "period exceeds 3 months");
-
         }
     }
 
@@ -72,9 +71,14 @@ public class InternshipValidator {
     public void validateOfAddNewPerson(Internship newInternship, Internship oldInternship) {
         List<TeamMember> oldMembers = oldInternship.getInterns();
         boolean result = new HashSet<>(oldMembers).containsAll(newInternship.getInterns());
-        if(!result) {
+        if (!result) {
+            List<Long> membersIdsOutOfList = newInternship.getInterns()
+                    .stream()
+                    .filter(member -> !oldMembers.contains(member))
+                    .map(TeamMember::getId)
+                    .toList();
             throw new DataValidationException("The new list of project participants includes additional" +
-                    " participants who were not previously involved in the project");
+                    " participants who were not previously involved in the project " + membersIdsOutOfList);
         }
     }
 
@@ -86,6 +90,4 @@ public class InternshipValidator {
             throw new IllegalArgumentException("Internships do not match by project");
         }
     }
-
-
 }

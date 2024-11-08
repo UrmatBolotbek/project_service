@@ -66,9 +66,6 @@ public class InternshipServiceTest {
     private Project project;
     private InternshipDto internshipDto;
     private Internship internship;
-    private Task first_task;
-    private Task second_task;
-    private Task taskForMemberInProgress;
     private InternshipDto internshipDtoInProgress;
 
     @BeforeEach
@@ -88,11 +85,23 @@ public class InternshipServiceTest {
         secondTeamMember = TeamMember.builder().id(2L).roles(List.of(TeamRole.INTERN)).build();
         memberInProgress = TeamMember.builder().id(3L).roles(List.of(TeamRole.INTERN)).build();
         List<Long> internsId = new ArrayList<>(Arrays.asList(1L, 2L, 3L));
-        first_task = Task.builder().performerUserId(1L).status(TaskStatus.DONE).build();
-        second_task = Task.builder().performerUserId(2L).status(TaskStatus.DONE).build();
-        taskForMemberInProgress = Task.builder().performerUserId(3L).status(TaskStatus.IN_PROGRESS).build();
+        Task first_task = Task.builder()
+                .performerUserId(1L)
+                .status(TaskStatus.DONE)
+                .build();
+        Task second_task = Task.builder()
+                .performerUserId(2L)
+                .status(TaskStatus.DONE)
+                .build();
+        Task taskForMemberInProgress = Task.builder()
+                .performerUserId(3L)
+                .status(TaskStatus.IN_PROGRESS)
+                .build();
         List<Task> tasks = new ArrayList<>(Arrays.asList(first_task, second_task, taskForMemberInProgress));
-        project = Project.builder().id(1L).tasks(tasks).build();
+        project = Project.builder()
+                .id(1L)
+                .tasks(tasks)
+                .build();
         internshipDto = InternshipDto.builder()
                 .id(1L)
                 .mentorId(10L)

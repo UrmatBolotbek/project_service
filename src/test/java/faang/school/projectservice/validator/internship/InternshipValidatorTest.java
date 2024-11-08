@@ -2,6 +2,8 @@ package faang.school.projectservice.validator.internship;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.exeption.DataValidationException;
+import faang.school.projectservice.model.Internship;
+import faang.school.projectservice.model.InternshipStatus;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.Team;
 import faang.school.projectservice.model.TeamMember;
@@ -24,8 +26,12 @@ public class InternshipValidatorTest {
     @InjectMocks
     private InternshipValidator validator;
     private InternshipDto internshipDto;
+    private Internship internshipNew;
+    private Internship internshipOld;
     private Project project;
+    private TeamMember firstTeamMember;
     private TeamMember secondTeamMember;
+    private TeamMember thirdTeamMember;
 
     @BeforeEach
     public void initData() {
@@ -35,18 +41,24 @@ public class InternshipValidatorTest {
                 .endDate(LocalDateTime.of(2024, Month.DECEMBER, 2, 15, 20, 13))
                 .internsId(new ArrayList<>())
                 .build();
-        TeamMember firstTeamMember = TeamMember.builder()
+        firstTeamMember = TeamMember.builder()
                 .id(1L)
                 .build();
         secondTeamMember = TeamMember.builder()
                 .id(2L)
                 .build();
+        thirdTeamMember = TeamMember.builder()
+                .id(3L)
+                .build();
         Team team = new Team();
         team.setTeamMembers(List.of(firstTeamMember));
         List<Team> teams = List.of(team);
         project = Project.builder()
+                .id(1L)
                 .teams(teams)
                 .build();
+        internshipNew = new Internship();
+        internshipOld = new Internship();
     }
 
     @Test
@@ -74,4 +86,52 @@ public class InternshipValidatorTest {
     public void testValidateQuantityOfMembersWithEmptyQuantity() {
         assertThrows(IllegalArgumentException.class, () -> validator.validateQuantityOfMembers(internshipDto));
     }
+
+    @Test
+    public void testValidateOfStatusInternshipIsCompleted() {
+        internshipNew.setStatus(InternshipStatus.COMPLETED);
+        assertThrows(DataValidationException.class, () -> validator.validateOfStatusInternship(internshipNew));
+
+    }
+
+    @Test
+    public void testValidateOfStatusInternshipStatusIsNull() {
+        internshipNew.setStatus(null);
+        assertThrows(DataValidationException.class, () -> validator.validateOfStatusInternship(internshipNew));
+
+    }
+
+    @Test
+    public void testValidateOfAddNewPerson() {
+        internshipOld.setInterns(List.of(firstTeamMember,secondTeamMember));
+        internshipNew.setInterns(List.of(firstTeamMember,secondTeamMember,thirdTeamMember));
+        assertThrows(DataValidationException.class,
+                () -> validator.validateOfAddNewPerson(internshipNew, internshipOld));
+
+    }
+
+    @Test
+    public void testValidateOfSameInternshipsWithNotSameId() {
+        internshipOld.setId(1L);
+        internshipNew.setId(2L);
+        assertThrows(IllegalArgumentException.class,
+                () -> validator.validateOfSameInternships(internshipNew, internshipOld));
+    }
+
+    @Test
+    public void testValidateOfSameInternshipsWithNotSameProject() {
+        internshipOld.setId(1L);
+        internshipOld.setProject(project);
+        Project newProject = Project.builder()
+                .id(2L)
+                .build();
+        internshipNew.setId(1L);
+        internshipNew.setProject(newProject);
+        assertThrows(IllegalArgumentException.class,
+                () -> validator.validateOfSameInternships(internshipNew, internshipOld));
+    }
+
+
+
+
 }
