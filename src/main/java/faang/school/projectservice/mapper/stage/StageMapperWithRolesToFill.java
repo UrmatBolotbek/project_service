@@ -26,14 +26,12 @@ import java.util.stream.Collectors;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StageMapperWithRolesToFill {
-    //@Mapping(source = "project", target = "projectDt")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")
     @Mapping(target = "rolesToBeFilled", expression = "java(calculateRolesToBeFilled(stage))")
     StageDtoWithRolesToFill toDto(Stage stage);
 
-    //@Mapping(source = "project", target = "projectDto")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")
