@@ -50,8 +50,4 @@ public class InternshipFilterStatusTest {
         assertFalse(internshipStatusFilter.isApplicable(new InternshipFilterDto()));
     }
 
-
-
-
-
 }

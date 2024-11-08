@@ -131,7 +131,4 @@ public class InternshipValidatorTest {
                 () -> validator.validateOfSameInternships(internshipNew, internshipOld));
     }
 
-
-
-
 }
