@@ -24,7 +24,6 @@ public class InternshipValidator {
         LocalDateTime startInternship = internshipDto.getStartDate();
         LocalDateTime endInternship = internshipDto.getEndDate();
         long monthsDifference = ChronoUnit.MONTHS.between(startInternship, endInternship);
-        System.out.println(monthsDifference);
         if (monthsDifference > 3) {
             throw new IllegalArgumentException("The duration of the internship "
                     + internshipDto.getId() + "period exceeds 3 months");
@@ -83,9 +82,6 @@ public class InternshipValidator {
     }
 
     public void validateOfSameInternships(Internship newInternship, Internship oldInternship) {
-        if (!Objects.equals(newInternship.getId(), oldInternship.getId())) {
-            throw new IllegalArgumentException("Internships do not match by ID");
-        }
         if (!Objects.equals(newInternship.getProject().getId(), oldInternship.getProject().getId())) {
             throw new IllegalArgumentException("Internships do not match by project");
         }

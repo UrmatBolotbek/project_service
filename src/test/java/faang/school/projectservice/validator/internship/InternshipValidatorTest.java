@@ -111,14 +111,6 @@ public class InternshipValidatorTest {
     }
 
     @Test
-    public void testValidateOfSameInternshipsWithNotSameId() {
-        internshipOld.setId(1L);
-        internshipNew.setId(2L);
-        assertThrows(IllegalArgumentException.class,
-                () -> validator.validateOfSameInternships(internshipNew, internshipOld));
-    }
-
-    @Test
     public void testValidateOfSameInternshipsWithNotSameProject() {
         internshipOld.setId(1L);
         internshipOld.setProject(project);

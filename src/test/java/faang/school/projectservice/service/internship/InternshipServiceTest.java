@@ -158,7 +158,7 @@ public class InternshipServiceTest {
         when(projectRepository.getProjectById(1L)).thenReturn(project);
         when(internshipRepository.findById(1L)).thenReturn(Optional.of(internship));
 
-        internshipService.updateInternship(internshipDtoInProgress, 1L);
+        internshipService.updateInternship(internshipDtoInProgress);
 
         verify(internshipRepository).save(internshipCaptor.capture());
 
@@ -175,7 +175,7 @@ public class InternshipServiceTest {
         when(projectRepository.getProjectById(1L)).thenReturn(project);
         when(internshipRepository.findById(1L)).thenReturn(Optional.of(internship));
 
-        internshipService.updateInternship(internshipDto, 1L);
+        internshipService.updateInternship(internshipDto);
 
         verify(internshipRepository).save(internshipCaptor.capture());
 

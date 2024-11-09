@@ -49,8 +49,8 @@ public class InternshipService {
         log.info("Added internship: {}", internship.getId());
     }
 
-    public void updateInternship(InternshipDto internshipDto, long id) {
-        Internship oldInternship = internshipRepository.findById(id)
+    public void updateInternship(InternshipDto internshipDto) {
+        Internship oldInternship = internshipRepository.findById(internshipDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
         validator.validateOfStatusInternship(oldInternship);
         Internship newInternship = getInternship(internshipDto);
@@ -63,8 +63,7 @@ public class InternshipService {
                     " have updated their roles", newInternship.getId());
         } else if (newInternship.getStatus() == InternshipStatus.IN_PROGRESS) {
             updateMemberWhenProjectInProgress(newInternship);
-            log.info("The internship {} is not over, the participants who have completed the training" +
-                    " have updated their roles", newInternship.getId());
+            log.info("The internship {} is not over, is updated", newInternship.getId());
         }
         internshipRepository.save(newInternship);
         log.info("Updated internship: {}", newInternship.getId());
