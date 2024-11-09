@@ -7,6 +7,7 @@ import faang.school.projectservice.model.InternshipStatus;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.Team;
 import faang.school.projectservice.model.TeamMember;
+import faang.school.projectservice.model.TeamRole;
 import faang.school.projectservice.validator.internship_validator.InternshipValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ public class InternshipValidatorTest {
                 .build();
         firstTeamMember = TeamMember.builder()
                 .id(1L)
+                .roles(List.of(TeamRole.DESIGNER))
                 .build();
         secondTeamMember = TeamMember.builder()
                 .id(2L)
@@ -111,16 +113,24 @@ public class InternshipValidatorTest {
     }
 
     @Test
-    public void testValidateOfSameInternshipsWithNotSameProject() {
-        internshipOld.setId(1L);
-        internshipOld.setProject(project);
-        Project newProject = Project.builder()
-                .id(2L)
-                .build();
-        internshipNew.setId(1L);
-        internshipNew.setProject(newProject);
-        assertThrows(IllegalArgumentException.class,
-                () -> validator.validateOfSameInternships(internshipNew, internshipOld));
+    public void testValidateMentorHasNotTheRightRole() {
+        internshipNew.setTeamRole(TeamRole.DEVELOPER);
+        internshipNew.setMentorId(firstTeamMember);
+        assertThrows(DataValidationException.class,
+                () -> validator.validateMentorHasTheRightRole(internshipNew));
+    }
+
+    @Test
+    public void testValidateTeamRole() {
+        assertThrows(DataValidationException.class,
+                () -> validator.validateTeamRole(internshipDto));
+    }
+
+    @Test
+    public void testValidateInternNotInInternship() {
+        internshipNew.setInterns(List.of(firstTeamMember,secondTeamMember));
+        assertThrows(DataValidationException.class,
+                () -> validator.validateInternInInternship(internshipNew, thirdTeamMember));
     }
 
 }

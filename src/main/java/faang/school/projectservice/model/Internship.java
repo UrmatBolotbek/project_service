@@ -70,6 +70,9 @@ public class Internship {
     @NotBlank
     private String name;
 
+    @NotBlank
+    private TeamRole teamRole;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;

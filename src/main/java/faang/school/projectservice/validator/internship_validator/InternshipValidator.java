@@ -1,6 +1,7 @@
 package faang.school.projectservice.validator.internship_validator;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
+import faang.school.projectservice.dto.internship.InternshipUpdateDto;
 import faang.school.projectservice.exeption.DataValidationException;
 import faang.school.projectservice.model.Internship;
 import faang.school.projectservice.model.InternshipStatus;
@@ -81,9 +82,32 @@ public class InternshipValidator {
         }
     }
 
-    public void validateOfSameInternships(Internship newInternship, Internship oldInternship) {
-        if (!Objects.equals(newInternship.getProject().getId(), oldInternship.getProject().getId())) {
-            throw new IllegalArgumentException("Internships do not match by project");
+    public void validateMentorHasTheRightRole(Internship internship) {
+        TeamMember mentor = internship.getMentorId();
+        if (!mentor.getRoles().contains(internship.getTeamRole())) {
+            throw new DataValidationException("The mentor " + mentor.getId() + " has not right role");
+        }
+    }
+
+    public void validateTeamRole(InternshipDto internshipDto) {
+        if (internshipDto.getTeamRole() == null) {
+            throw new DataValidationException("The team role is null for internship "
+                    + internshipDto.getId());
+        }
+    }
+
+    public void validateTeamRole(InternshipUpdateDto internshipUpdateDtoDto) {
+        if (internshipUpdateDtoDto.getTeamRole() == null) {
+            throw new DataValidationException("The team role is null for internship "
+                    + internshipUpdateDtoDto.getId());
+        }
+    }
+
+    public void validateInternInInternship(Internship internship, TeamMember teamMember) {
+        List<TeamMember> interns = internship.getInterns();
+        if (!interns.contains(teamMember)) {
+            throw new DataValidationException("The teamMember " + teamMember.getId()
+                    + " not in internship " + internship.getId());
         }
     }
 }

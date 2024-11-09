@@ -1,6 +1,7 @@
 package faang.school.projectservice.mapper.internship;
 
 import faang.school.projectservice.dto.internship.InternshipDto;
+import faang.school.projectservice.dto.internship.InternshipUpdateDto;
 import faang.school.projectservice.model.Internship;
 import faang.school.projectservice.model.TeamMember;
 import org.mapstruct.Mapper;
@@ -21,6 +22,10 @@ public interface InternshipMapper {
     @Mapping(source = "mentorId.id", target = "mentorId")
     @Mapping(source = "interns", target = "internsId", qualifiedByName = "toIds")
     InternshipDto toInternshipDto(Internship internship);
+
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "mentorId", ignore = true)
+    Internship toInternship(InternshipUpdateDto internshipUpdateDto);
 
     List<Internship> toInternships(List<InternshipDto> internshipDtos);
 
