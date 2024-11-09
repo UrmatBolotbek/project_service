@@ -21,10 +21,12 @@ public class InternshipController {
         validator.validateDescriptionAndName(internshipDto);
         validator.validateQuantityOfMembers(internshipDto);
         validator.validateTeamRole(internshipDto);
+        validator.validateOfStatusInternship(internshipDto);
         internshipService.addInternship(internshipDto);
     }
 
     public void updateInternship(InternshipUpdateDto internshipUpdateDto) {
+        validator.validateOfStatusUpdateInternship(internshipUpdateDto);
         validator.validateTeamRole(internshipUpdateDto);
         internshipService.updateInternship(internshipUpdateDto);
     }

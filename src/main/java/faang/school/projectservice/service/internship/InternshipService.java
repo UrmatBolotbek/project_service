@@ -44,7 +44,6 @@ public class InternshipService {
         validator.validate3MonthDuration(internshipDto);
         Internship internship = getInternship(internshipDto);
         validator.validateMentorHasTheRightRole(internship);
-        validator.validateOfStatusInternship(internship);
 
         validator.validateMentorExistInTeamMembers(internship.getProject(), internship.getMentorId());
         internshipRepository.save(internship);
@@ -54,8 +53,7 @@ public class InternshipService {
     public void updateInternship(InternshipUpdateDto internshipUpdateDto) {
         Internship oldInternship = internshipRepository.findById(internshipUpdateDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
-        validator.validateOfStatusInternship(oldInternship);
-        validator.validateMentorHasTheRightRole(oldInternship);
+        validator.validateOfStatusOldInternship(oldInternship);
         Internship newInternship = getUpdateInternship(internshipUpdateDto);
         validator.validateMentorHasTheRightRole(newInternship);
         List<TeamMember> interns = oldInternship.getInterns();
@@ -98,7 +96,7 @@ public class InternshipService {
                 .orElseThrow(EntityNotFoundException::new);
         TeamMember teamMember = teamMemberRepository.findById(internId);
         Project project = internship.getProject();
-        validator.validateOfStatusInternship(internship);
+        validator.validateOfStatusOldInternship(internship);
         validator.validateInternInInternship(internship, teamMember);
         if(checkingTaskCompletion(teamMember, project)) {
             teamMember.setRoles(List.of(internship.getTeamRole()));
@@ -113,7 +111,7 @@ public class InternshipService {
         Internship internship = internshipRepository.findById(internshipId)
                 .orElseThrow(EntityNotFoundException::new);
         TeamMember teamMember = teamMemberRepository.findById(internId);
-        validator.validateOfStatusInternship(internship);
+        validator.validateOfStatusOldInternship(internship);
         validator.validateInternInInternship(internship, teamMember);
         deleteIntern(internship, teamMember);
         log.info("Intern {} was deleted from internship {}", internId, internshipId);

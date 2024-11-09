@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -62,9 +61,9 @@ public class InternshipValidator {
         }
     }
 
-    public void validateOfStatusInternship(Internship internship) {
-        if (internship.getStatus() == InternshipStatus.COMPLETED || internship.getStatus() == null) {
-            throw new DataValidationException("Internship " + internship.getId() + " not relevant");
+    public void validateOfStatusInternship(InternshipDto internshipDto) {
+        if (internshipDto.getStatus() == InternshipStatus.COMPLETED || internshipDto.getStatus() == null) {
+            throw new DataValidationException("Internship " + internshipDto.getId() + " not relevant");
         }
     }
 
@@ -110,4 +109,17 @@ public class InternshipValidator {
                     + " not in internship " + internship.getId());
         }
     }
+
+    public void validateOfStatusUpdateInternship(InternshipUpdateDto internshipUpdateDto) {
+        if (internshipUpdateDto.getStatus() == null) {
+            throw new DataValidationException("Status by internship " + internshipUpdateDto.getId() + " is null");
+        }
+    }
+
+    public void validateOfStatusOldInternship(Internship oldInternship) {
+        if (oldInternship.getStatus() == InternshipStatus.COMPLETED) {
+            throw new DataValidationException("Internship " + oldInternship.getId() + " not relevant");
+        }
+    }
+
 }

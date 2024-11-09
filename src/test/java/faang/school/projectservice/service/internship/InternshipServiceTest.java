@@ -135,9 +135,6 @@ public class InternshipServiceTest {
         when(teamMemberRepository.findById(3L)).thenReturn(memberInProgress);
         when(projectRepository.getProjectById(1L)).thenReturn(project);
 
-        doNothing().when(validator).validateMentorExistInTeamMembers(project, mentor);
-        doNothing().when(validator).validate3MonthDuration(internshipDto);
-
         internshipService.addInternship(internshipDto);
 
         verify(internshipRepository).save(internshipCaptor.capture());
