@@ -6,7 +6,6 @@ import faang.school.projectservice.mapper.executor.ExecutorMapper;
 import faang.school.projectservice.mapper.project.ProjectMapper;
 import faang.school.projectservice.mapper.role.StageRolesMapper;
 import faang.school.projectservice.mapper.task.TaskMapper;
-import faang.school.projectservice.model.TeamRole;
 import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.model.stage.StageRoles;
 import org.mapstruct.InjectionStrategy;
@@ -26,12 +25,16 @@ import java.util.stream.Collectors;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StageMapperWithRolesToFill {
+    @Mapping(source = "stageId", target = "id")
+    @Mapping(source = "stageName", target = "name")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")
     @Mapping(target = "rolesToBeFilled", expression = "java(calculateRolesToBeFilled(stage))")
     StageDtoWithRolesToFill toDto(Stage stage);
 
+    @Mapping(source = "stageId", target = "id")
+    @Mapping(source = "stageName", target = "name")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")
@@ -39,20 +42,31 @@ public interface StageMapperWithRolesToFill {
     List<StageDtoWithRolesToFill> toDto(List<Stage> stages);
 
     default List<StageRolesDto> calculateRolesToBeFilled(Stage stage) {
-        Map<TeamRole, Integer> roleCountMap = stage.getStageRoles().stream()
+        Map<StageRoles, Integer> roleCountMap = stage.getStageRoles().stream()
                 .collect(Collectors.toMap(
-                        StageRoles::getTeamRole,
+                        stageRole -> stageRole,
                         StageRoles::getCount
                 ));
 
         stage.getExecutors().stream()
                 .flatMap(teamMember -> teamMember.getRoles().stream())
-                .forEach(memberRole -> roleCountMap
-                        .computeIfPresent(memberRole, (role, count) -> count > 0 ? count - 1 : count));
+                .forEach(memberRole -> roleCountMap.entrySet().stream()
+                        .filter(entry -> entry.getKey().getTeamRole().equals(memberRole))
+                        .forEach(entry -> {
+                            if (entry.getValue() > 0) {
+                                roleCountMap.put(entry.getKey(), entry.getValue() - 1);
+                            }
+                        })
+                );
 
         return roleCountMap.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
-                .map(entry -> new StageRolesDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .map(entry -> new StageRolesDto(
+                        entry.getKey().getId(),
+                        entry.getKey().getTeamRole(),
+                        entry.getValue(),
+                        entry.getKey().getStage().getStageId()
+                ))
+                .toList();
     }
 }

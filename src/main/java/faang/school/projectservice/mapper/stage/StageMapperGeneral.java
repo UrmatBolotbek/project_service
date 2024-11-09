@@ -21,16 +21,22 @@ import java.util.List;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StageMapperGeneral {
+    @Mapping(source = "stageId", target = "id")
+    @Mapping(source = "stageName", target = "name")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")
     StageDtoGeneral toDto(Stage stage);
 
+    @Mapping(source = "id", target = "stageId")
+    @Mapping(source = "name", target = "stageName")
     @Mapping(source = "rolesActiveAtStage", target = "stageRoles")
     @Mapping(source = "tasksActiveAtStage", target = "tasks")
     @Mapping(source = "executorsActiveAtStage", target = "executors")
     Stage toEntity(StageDtoGeneral StageDtoGeneral);
 
+    @Mapping(source = "stageId", target = "id")
+    @Mapping(source = "stageName", target = "name")
     @Mapping(source = "stageRoles", target = "rolesActiveAtStage")
     @Mapping(source = "tasks", target = "tasksActiveAtStage")
     @Mapping(source = "executors", target = "executorsActiveAtStage")

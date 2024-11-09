@@ -27,7 +27,7 @@ public class StageValidator {
     public void validateEveryTeamMemberHasRoleAtStage(StageDtoGeneral stageDtoGeneral) {
         boolean foundTeamMemberWithNoRole = stageDtoGeneral.getExecutorsActiveAtStage()
                 .stream()
-                .anyMatch(teamMember -> teamMember.getTeamRole() == null);
+                .anyMatch(teamMember -> teamMember.getRoles() == null);
         if (foundTeamMemberWithNoRole) {
             log.error("Team member with no role in project");
             throw new DataValidationException("There are team members with no role");
