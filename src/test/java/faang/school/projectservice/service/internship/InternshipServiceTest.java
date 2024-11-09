@@ -211,6 +211,8 @@ public class InternshipServiceTest {
 
         internshipService.updateStatusOfIntern(1L, 1L);
 
+        verify(internshipRepository).save(internship);
+
         assertEquals(List.of(TeamRole.DEVELOPER), firstTeamMember.getRoles());
 
     }

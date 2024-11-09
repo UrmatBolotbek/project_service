@@ -102,7 +102,9 @@ public class InternshipService {
         validator.validateInternInInternship(internship, teamMember);
         if(checkingTaskCompletion(teamMember, project)) {
             teamMember.setRoles(List.of(internship.getTeamRole()));
+            deleteIntern(internship, teamMember);
             log.info("Updating status of intern {}", internId);
+            internshipRepository.save(internship);
         }
         log.warn("The intern’s {} tasks are not completed", teamMember.getId());
     }
