@@ -10,7 +10,7 @@ import java.util.List;
 public class StageTaskStatusFilter implements StageFilter {
     @Override
     public boolean isApplicable(StageFilterDto filters) {
-        return filters.getTaskStatus() == null;
+        return filters.getTaskStatus() != null;
     }
 
     @Override
