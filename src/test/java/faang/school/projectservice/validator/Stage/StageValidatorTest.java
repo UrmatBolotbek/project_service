@@ -35,7 +35,6 @@ class StageValidatorTest {
 
     private Project project;
 
-    private ProjectDto projectDto;
     private ExecutorDto executorDtoOwner;
     private ExecutorDto executorDtoDesigner;
     private ExecutorDto executorDtoDeveloper;
@@ -51,7 +50,7 @@ class StageValidatorTest {
         project.setStatus(ProjectStatus.IN_PROGRESS);
 
         // Initialize ProjectDto
-        projectDto = new ProjectDto();
+        ProjectDto projectDto = new ProjectDto();
         projectDto.setId(1L);
         projectDto.setName("Test Project");
 

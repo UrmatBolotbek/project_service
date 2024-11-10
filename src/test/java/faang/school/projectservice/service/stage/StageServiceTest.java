@@ -13,7 +13,6 @@ import faang.school.projectservice.mapper.stage.StageMapperGeneralImpl;
 import faang.school.projectservice.mapper.stage.StageMapperWithRolesToFillImpl;
 import faang.school.projectservice.mapper.task.TaskMapperImpl;
 import faang.school.projectservice.model.Project;
-import faang.school.projectservice.model.ProjectStatus;
 import faang.school.projectservice.model.Task;
 import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.TeamMember;
@@ -21,12 +20,10 @@ import faang.school.projectservice.model.TeamRole;
 import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.model.stage.StageRoles;
 import faang.school.projectservice.repository.StageRepository;
-import faang.school.projectservice.service.stage.StageService;
 import faang.school.projectservice.service.stage.filters.StageFilter;
 import faang.school.projectservice.service.stage.filters.StageTaskStatusFilter;
 import faang.school.projectservice.service.stage.filters.StageTeamRoleFilter;
 import faang.school.projectservice.validator.Stage.StageValidator;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +33,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,8 +76,9 @@ public class StageServiceTest {
     private StageRolesDto stageRolesDtoDesigner;
     private StageRolesDto stageRolesDtoDeveloper;
 
+
     @BeforeEach
-    void setUp() {
+    public void init() {
         List<StageFilter> stageFilters = List.of(
                 new StageTaskStatusFilter(),
                 new StageTeamRoleFilter());
@@ -92,7 +88,6 @@ public class StageServiceTest {
         ProjectMapperImpl projectMapper = new ProjectMapperImpl();
         StageRolesMapperImpl rolesMapper = new StageRolesMapperImpl();
         TaskMapperImpl taskMapper = new TaskMapperImpl();
-
         stageMapperGeneral = new StageMapperGeneralImpl(
                 projectMapper,
                 rolesMapper,
@@ -103,16 +98,13 @@ public class StageServiceTest {
                 rolesMapper,
                 taskMapper,
                 executorMapper);
-    }
-
-    @BeforeEach
-    public void init() {
-        projectInProgress = new Project();
+        //Initializing Project
+        Project projectInProgress = new Project();
         projectInProgress.setId(1L);
         projectInProgress.setName("Test Project In Progress");
 
         //Initializing Task
-        testTask = new Task();
+        Task testTask = new Task();
         testTask.setId(1L);
         testTask.setName("Test Task");
         testTask.setStatus(TaskStatus.IN_PROGRESS);
@@ -121,33 +113,30 @@ public class StageServiceTest {
         teamMemberOwner = new TeamMember();
         teamMemberOwner.setId(1L);
         teamMemberOwner.setRoles(List.of(TeamRole.OWNER));
-        //stageRolesOwner.setStage(stage);
 
         teamMemberDesigner = new TeamMember();
         teamMemberDesigner.setId(2L);
         teamMemberDesigner.setRoles(List.of(TeamRole.DESIGNER));
-        //stageRolesDesigner.setStage(stage);
 
         teamMemberDeveloper = new TeamMember();
         teamMemberDeveloper.setId(3L);
         teamMemberDeveloper.setRoles(List.of(TeamRole.DEVELOPER));
-        //stageRolesDeveloper.setStage(stage);
 
         //Initialize Roles
-        stageRolesOwner = new StageRoles();
+        StageRoles stageRolesOwner = new StageRoles();
         stageRolesOwner.setId(1L);
         stageRolesOwner.setTeamRole(TeamRole.OWNER);
-        //teamMemberOwner.setStages(stage);
+        stageRolesOwner.setCount(1);
 
-        stageRolesDesigner = new StageRoles();
+        StageRoles stageRolesDesigner = new StageRoles();
         stageRolesDesigner.setId(2L);
         stageRolesDesigner.setTeamRole(TeamRole.DESIGNER);
-        //teamMemberDesigner.setStages(stage);
+        stageRolesDesigner.setCount(1);
 
-        stageRolesDeveloper = new StageRoles();
+        StageRoles stageRolesDeveloper = new StageRoles();
         stageRolesDeveloper.setId(3L);
         stageRolesDeveloper.setTeamRole(TeamRole.DEVELOPER);
-        //teamMemberDeveloper.setStages(stage);
+        stageRolesDeveloper.setCount(1);
 
         //Initializing Stage
         stage = new Stage();
@@ -158,13 +147,21 @@ public class StageServiceTest {
         stage.setStageRoles(List.of(stageRolesOwner, stageRolesDesigner, stageRolesDeveloper));
         stage.setExecutors(List.of(teamMemberOwner, teamMemberDesigner, teamMemberDeveloper));
 
+        teamMemberOwner.setStages(List.of(stage));
+        teamMemberDesigner.setStages(List.of(stage));
+        teamMemberDeveloper.setStages(List.of(stage));
+
+        stageRolesOwner.setStage(stage);
+        stageRolesDesigner.setStage(stage);
+        stageRolesDeveloper.setStage(stage);
+
         // Initializing ProjectDto
-        projectDto = new ProjectDto();
+        ProjectDto projectDto = new ProjectDto();
         projectDto.setId(1L);
         projectDto.setName("Test Project In Progress");
 
         // Initializing TaskDto
-        taskDto = new TaskDto();
+        TaskDto taskDto = new TaskDto();
         taskDto.setId(1L);
         taskDto.setName("Test Task");
         taskDto.setStatus(TaskStatus.IN_PROGRESS);
@@ -183,29 +180,20 @@ public class StageServiceTest {
         executorDtoDeveloper.setRoles(List.of(TeamRole.DEVELOPER));
 
         // Initialize RolesDtos
-        stageRolesDtoOwner = new StageRolesDto();
+        StageRolesDto stageRolesDtoOwner = new StageRolesDto();
         stageRolesDtoOwner.setId(1L);
         stageRolesDtoOwner.setTeamRole(TeamRole.OWNER);
-        stageRolesDtoOwner.setStageId(1L);
+        stageRolesDtoOwner.setCount(1);
 
-        stageRolesDtoDesigner = new StageRolesDto();
+        StageRolesDto stageRolesDtoDesigner = new StageRolesDto();
         stageRolesDtoDesigner.setId(2L);
         stageRolesDtoDesigner.setTeamRole(TeamRole.DESIGNER);
-        stageRolesDtoDesigner.setStageId(1L);
+        stageRolesDtoDesigner.setCount(1);
 
-        stageRolesDtoDeveloper = new StageRolesDto();
+        StageRolesDto stageRolesDtoDeveloper = new StageRolesDto();
         stageRolesDtoDeveloper.setId(3L);
         stageRolesDtoDeveloper.setTeamRole(TeamRole.DEVELOPER);
-        stageRolesDtoDeveloper.setStageId(1L);
-
-        // Initializing StageDtoGeneral
-        stageDtoGeneral = new StageDtoGeneral();
-        stageDtoGeneral.setId(1L);
-        stageDtoGeneral.setName("Test Stage");
-        stageDtoGeneral.setProject(projectDto);
-        stageDtoGeneral.setTasksActiveAtStage(List.of(taskDto));
-        stageDtoGeneral.setRolesActiveAtStage(List.of(stageRolesDtoDesigner, stageRolesDtoOwner, stageRolesDtoDeveloper));
-        stageDtoGeneral.setExecutorsActiveAtStage(List.of(executorDtoOwner, executorDtoDesigner, executorDtoDeveloper));
+        stageRolesDtoDeveloper.setCount(1);
 
         stageDtoGeneralWithRolesToFill = new StageDtoGeneral();
         stageDtoGeneralWithRolesToFill.setId(2L);
@@ -214,6 +202,15 @@ public class StageServiceTest {
         stageDtoGeneralWithRolesToFill.setTasksActiveAtStage(List.of(taskDto));
         stageDtoGeneralWithRolesToFill.setRolesActiveAtStage(List.of(stageRolesDtoOwner, stageRolesDtoDesigner, stageRolesDtoDeveloper));
         stageDtoGeneralWithRolesToFill.setExecutorsActiveAtStage(List.of(executorDtoOwner, executorDtoDesigner));
+
+        executorDtoOwner.setStagesIds(List.of(1L));
+        executorDtoDesigner.setStagesIds(List.of(1L));
+        executorDtoDeveloper.setStagesIds(List.of(1L));
+
+        stageRolesDtoOwner.setStageId(1L);
+        stageRolesDtoDesigner.setStageId(1L);
+        stageRolesDtoDeveloper.setStageId(1L);
+
     }
 
     @Test

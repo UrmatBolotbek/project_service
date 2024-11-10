@@ -7,7 +7,6 @@ import faang.school.projectservice.mapper.stage.StageMapperGeneral;
 import faang.school.projectservice.mapper.stage.StageMapperWithRolesToFill;
 import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.stage.Stage;
-import faang.school.projectservice.model.stage.StageRoles;
 import faang.school.projectservice.repository.StageRepository;
 import faang.school.projectservice.service.stage.filters.StageFilter;
 import faang.school.projectservice.validator.Stage.StageValidator;
@@ -16,8 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor

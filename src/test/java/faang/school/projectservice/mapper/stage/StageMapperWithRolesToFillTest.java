@@ -27,9 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class StageMapperWithRolesToFillTest {
     private StageMapperWithRolesToFillImpl stageMapperWithRolesToFill;
 
-    private Project projectInProgress;
     private Stage stage;
-    private Task testTask;
     private TeamMember teamMemberOwner;
     private TeamMember teamMemberDesigner;
     private TeamMember teamMemberDeveloper;
@@ -52,12 +50,12 @@ class StageMapperWithRolesToFillTest {
                 executorMapper);
 
         //Initializing Project
-        projectInProgress = new Project();
+        Project projectInProgress = new Project();
         projectInProgress.setId(1L);
         projectInProgress.setName("Test Project In Progress");
 
         //Initializing Task
-        testTask = new Task();
+        Task testTask = new Task();
         testTask.setId(1L);
         testTask.setName("Test Task");
         testTask.setStatus(TaskStatus.IN_PROGRESS);
@@ -66,33 +64,34 @@ class StageMapperWithRolesToFillTest {
         teamMemberOwner = new TeamMember();
         teamMemberOwner.setId(1L);
         teamMemberOwner.setRoles(List.of(TeamRole.OWNER));
-        //stageRolesOwner.setStage(stage);
 
         teamMemberDesigner = new TeamMember();
         teamMemberDesigner.setId(2L);
         teamMemberDesigner.setRoles(List.of(TeamRole.DESIGNER));
-        //stageRolesDesigner.setStage(stage);
 
         teamMemberDeveloper = new TeamMember();
         teamMemberDeveloper.setId(3L);
         teamMemberDeveloper.setRoles(List.of(TeamRole.DEVELOPER));
-        //stageRolesDeveloper.setStage(stage);
+
 
         //Initialize Roles
         stageRolesOwner = new StageRoles();
         stageRolesOwner.setId(1L);
         stageRolesOwner.setTeamRole(TeamRole.OWNER);
-        //teamMemberOwner.setStages(List.of(stage));
+        stageRolesOwner.setCount(1);
+
 
         stageRolesDesigner = new StageRoles();
         stageRolesDesigner.setId(2L);
         stageRolesDesigner.setTeamRole(TeamRole.DESIGNER);
-        //teamMemberDesigner.setStages(List.of(stage));
+        stageRolesDesigner.setCount(1);
+
 
         stageRolesDeveloper = new StageRoles();
         stageRolesDeveloper.setId(3L);
         stageRolesDeveloper.setTeamRole(TeamRole.DEVELOPER);
-        //teamMemberDeveloper.setStages(List.of(stage));
+        stageRolesDeveloper.setCount(1);
+
 
         //Initializing Stage
         stage = new Stage();
@@ -103,10 +102,20 @@ class StageMapperWithRolesToFillTest {
         stage.setStageRoles(List.of(stageRolesOwner, stageRolesDesigner, stageRolesDeveloper));
         stage.setExecutors(List.of(teamMemberOwner, teamMemberDesigner));
 
+        teamMemberOwner.setStages(List.of(stage));
+        teamMemberDesigner.setStages(List.of(stage));
+        teamMemberDeveloper.setStages(List.of(stage));
+
+        stageRolesOwner.setStage(stage);
+        stageRolesDesigner.setStage(stage);
+        stageRolesDeveloper.setStage(stage);
     }
 
     @Test
     void testToDtoWithRolesToBeFilled() {
+        stageRolesOwner.setStage(stage);
+        stageRolesDesigner.setStage(stage);
+        stageRolesDeveloper.setStage(stage);
         StageDtoWithRolesToFill stageDto = stageMapperWithRolesToFill.toDto(stage);
 
         assertEquals(stage.getStageId(), stageDto.getId());
@@ -135,15 +144,14 @@ class StageMapperWithRolesToFillTest {
         List<StageRolesDto> rolesToBeFilled = stageMapperWithRolesToFill.calculateRolesToBeFilled(stage);
 
         assertNotNull(rolesToBeFilled);
-        assertEquals(1, rolesToBeFilled.size());  // Only one role to be filled (Developer)
+        assertEquals(1, rolesToBeFilled.size());
 
         StageRolesDto missingDeveloperRole = rolesToBeFilled.get(0);
         assertEquals(TeamRole.DEVELOPER, missingDeveloperRole.getTeamRole());
         assertEquals(1, missingDeveloperRole.getCount());
 
-        // If we add the Developer to the executors, there should be no roles left to be filled
         stage.setExecutors(List.of(teamMemberOwner, teamMemberDesigner, teamMemberDeveloper));
         rolesToBeFilled = stageMapperWithRolesToFill.calculateRolesToBeFilled(stage);
-        assertTrue(rolesToBeFilled.isEmpty());  // No roles to be filled now, as all roles are covered
+        assertTrue(rolesToBeFilled.isEmpty());
     }
 }
