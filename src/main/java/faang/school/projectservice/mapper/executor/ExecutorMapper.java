@@ -29,7 +29,6 @@ public interface ExecutorMapper {
     @Mapping(source = "stagesIds", target = "stages", qualifiedByName = "mapIdsToStages")
     List<TeamMember> toEntity(List<ExecutorDto> executorDtos);
 
-    // Custom mapping method to convert List<Stage> to List<Long>
     @Named("mapStagesToIds")
     default List<Long> mapStagesToIds(List<Stage> stages) {
         return stages != null ? stages.stream()
@@ -37,7 +36,6 @@ public interface ExecutorMapper {
                 .collect(Collectors.toList()) : null;
     }
 
-    // Custom mapping method to convert List<Long> to List<Stage>
     @Named("mapIdsToStages")
     default List<Stage> mapIdsToStages(List<Long> stagesIds) {
         return stagesIds != null ? stagesIds.stream()

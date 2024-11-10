@@ -24,7 +24,6 @@ public interface StageRolesMapper {
     @Mapping(source = "stageId", target = "stage.stageId")
     List<StageRoles> toEntity(List<StageRolesDto> stageRolesDtos);
 
-    // Custom mapping method to convert a list of StageRolesDto to StageRoles
     default Stage mapStageIdToStage(Long stageId) {
         if (stageId == null) {
             return null;

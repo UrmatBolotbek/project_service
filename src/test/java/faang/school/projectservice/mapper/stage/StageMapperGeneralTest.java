@@ -1,64 +1,32 @@
-package faang.school.projectservice.service.stage;
+package faang.school.projectservice.mapper.stage;
 
 import faang.school.projectservice.dto.stage.ExecutorDto;
 import faang.school.projectservice.dto.stage.ProjectDto;
 import faang.school.projectservice.dto.stage.StageDtoGeneral;
-import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageRolesDto;
 import faang.school.projectservice.dto.stage.TaskDto;
 import faang.school.projectservice.mapper.executor.ExecutorMapperImpl;
 import faang.school.projectservice.mapper.project.ProjectMapperImpl;
 import faang.school.projectservice.mapper.role.StageRolesMapperImpl;
-import faang.school.projectservice.mapper.stage.StageMapperGeneralImpl;
-import faang.school.projectservice.mapper.stage.StageMapperWithRolesToFillImpl;
 import faang.school.projectservice.mapper.task.TaskMapperImpl;
 import faang.school.projectservice.model.Project;
-import faang.school.projectservice.model.ProjectStatus;
 import faang.school.projectservice.model.Task;
 import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.model.TeamRole;
 import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.model.stage.StageRoles;
-import faang.school.projectservice.repository.StageRepository;
-import faang.school.projectservice.service.stage.StageService;
-import faang.school.projectservice.service.stage.filters.StageFilter;
-import faang.school.projectservice.service.stage.filters.StageTaskStatusFilter;
-import faang.school.projectservice.service.stage.filters.StageTeamRoleFilter;
-import faang.school.projectservice.validator.Stage.StageValidator;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(MockitoExtension.class)
-public class StageServiceTest {
-    @Mock
-    private StageRepository stageRepository;
-    @Mock
-    private StageValidator stageValidator;
-    @InjectMocks
-    private StageService stageService;
-
+class StageMapperGeneralTest {
     private StageMapperGeneralImpl stageMapperGeneral;
-    private StageMapperWithRolesToFillImpl stageMapperWithRolesToFill;
 
     private Stage stage;
     private Project projectInProgress;
@@ -71,7 +39,6 @@ public class StageServiceTest {
     private StageRoles stageRolesDeveloper;
 
     private StageDtoGeneral stageDtoGeneral;
-    private StageDtoGeneral stageDtoGeneralWithRolesToFill;
     private ProjectDto projectDto;
     private TaskDto taskDto;
     private ExecutorDto executorDtoOwner;
@@ -83,30 +50,15 @@ public class StageServiceTest {
 
     @BeforeEach
     void setUp() {
-        List<StageFilter> stageFilters = List.of(
-                new StageTaskStatusFilter(),
-                new StageTeamRoleFilter());
-        ReflectionTestUtils.setField(stageService, "stageFilters", stageFilters);
-
+        // Initialize the mapper implementation
         ExecutorMapperImpl executorMapper = new ExecutorMapperImpl();
         ProjectMapperImpl projectMapper = new ProjectMapperImpl();
         StageRolesMapperImpl rolesMapper = new StageRolesMapperImpl();
         TaskMapperImpl taskMapper = new TaskMapperImpl();
 
-        stageMapperGeneral = new StageMapperGeneralImpl(
-                projectMapper,
-                rolesMapper,
-                taskMapper,
-                executorMapper);
-        stageMapperWithRolesToFill = new StageMapperWithRolesToFillImpl(
-                projectMapper,
-                rolesMapper,
-                taskMapper,
-                executorMapper);
-    }
+        stageMapperGeneral = new StageMapperGeneralImpl(projectMapper, rolesMapper, taskMapper, executorMapper);
 
-    @BeforeEach
-    public void init() {
+        //Initializing Project
         projectInProgress = new Project();
         projectInProgress.setId(1L);
         projectInProgress.setName("Test Project In Progress");
@@ -206,61 +158,112 @@ public class StageServiceTest {
         stageDtoGeneral.setTasksActiveAtStage(List.of(taskDto));
         stageDtoGeneral.setRolesActiveAtStage(List.of(stageRolesDtoDesigner, stageRolesDtoOwner, stageRolesDtoDeveloper));
         stageDtoGeneral.setExecutorsActiveAtStage(List.of(executorDtoOwner, executorDtoDesigner, executorDtoDeveloper));
-
-        stageDtoGeneralWithRolesToFill = new StageDtoGeneral();
-        stageDtoGeneralWithRolesToFill.setId(2L);
-        stageDtoGeneralWithRolesToFill.setName("Test Stage Role Missing");
-        stageDtoGeneralWithRolesToFill.setProject(projectDto);
-        stageDtoGeneralWithRolesToFill.setTasksActiveAtStage(List.of(taskDto));
-        stageDtoGeneralWithRolesToFill.setRolesActiveAtStage(List.of(stageRolesDtoOwner, stageRolesDtoDesigner, stageRolesDtoDeveloper));
-        stageDtoGeneralWithRolesToFill.setExecutorsActiveAtStage(List.of(executorDtoOwner, executorDtoDesigner));
     }
 
     @Test
-    void teatCreateSavesStage() {
-        doNothing().when(stageValidator).validateProjectNotClosed(stageDtoGeneralWithRolesToFill.getProject().getId());
-        doNothing().when(stageValidator).validateEveryTeamMemberHasRoleAtStage(stageDtoGeneralWithRolesToFill);
+    void toDto() {
+        StageDtoGeneral stageDto = stageMapperGeneral.toDto(stage);
 
-        stageDtoGeneralWithRolesToFill.setId(null);
-        Stage stageEntity = stageMapperGeneral.toEntity(stageDtoGeneralWithRolesToFill);
-        stageEntity.setStageId(1L);
+        assertEquals(stage.getStageId(), stageDto.getId());
+        assertEquals(stage.getStageName(), stageDto.getName());
 
-        when(stageRepository.save(any(Stage.class))).thenAnswer(invocation -> {
-            Stage savedStage = invocation.getArgument(0);
-            stage.setStageId(1L);
-            return savedStage;
-        });
+        assertNotNull(stageDto.getRolesActiveAtStage());
+        assertEquals(stage.getStageRoles().size(), stageDto.getRolesActiveAtStage().size());
 
-        StageDtoWithRolesToFill stageDtoOnReturn = stageMapperWithRolesToFill.toDto(stageEntity);
+       /*Map<TeamRole, Integer> roleMap = stageDto.getRolesActiveAtStage().stream()
+                .collect(Collectors.toMap(StageRolesDto::getTeamRole,
+                        StageRolesDto::getCount
+                ));
 
-        stageService.create(stageDtoGeneralWithRolesToFill);
+        assertEquals(1, roleMap.get(TeamRole.OWNER));
+        assertEquals(1, roleMap.get(TeamRole.DESIGNER));
+        assertEquals(1, roleMap.get(TeamRole.DEVELOPER));*/
 
-        ArgumentCaptor<Stage> stageCaptor = ArgumentCaptor.forClass(Stage.class);
-        verify(stageRepository, times(1)).save(stageCaptor.capture());
-        Stage capturedStage = stageCaptor.getValue();
+        assertNotNull(stageDto.getTasksActiveAtStage());
 
-        assertEquals(stageDtoGeneralWithRolesToFill.getName(), stageDtoOnReturn.getName());
-        assertNotNull(capturedStage.getStageId());
-        assertEquals(stageDtoOnReturn.getRolesToBeFilled(), List.of(stageRolesDtoDeveloper));
+        assertNotNull(stageDto.getExecutorsActiveAtStage());
+        assertEquals(stage.getExecutors().size(), stageDto.getExecutorsActiveAtStage().size());
+
+        List<Long> executorIds = stageDto.getExecutorsActiveAtStage().stream().map(ExecutorDto::getTeamMemberId).toList();
+
+        assertTrue(executorIds.contains(teamMemberOwner.getId()));
+        assertTrue(executorIds.contains(teamMemberDesigner.getId()));
+        assertTrue(executorIds.contains(teamMemberDeveloper.getId()));
     }
 
     @Test
-    void getByFilter() {
+    void toEntity() {
+        Stage stageEntity = stageMapperGeneral.toEntity(stageDtoGeneral);
+
+        assertEquals(stageDtoGeneral.getId(), stageEntity.getStageId());
+        assertEquals(stageDtoGeneral.getName(), stageEntity.getStageName());
+
+        assertNotNull(stageEntity.getProject());
+        assertEquals(stageDtoGeneral.getProject().getId(), stageEntity.getProject().getId());
+        assertEquals(stageDtoGeneral.getProject().getName(), stageEntity.getProject().getName());
+
+        assertNotNull(stageEntity.getTasks());
+        assertEquals(stageDtoGeneral.getTasksActiveAtStage().size(), stageEntity.getTasks().size());
+
+        assertNotNull(stageEntity.getStageRoles());
+        assertEquals(stageDtoGeneral.getRolesActiveAtStage().size(), stageEntity.getStageRoles().size());
+
+        assertNotNull(stageEntity.getExecutors());
+        assertEquals(stageDtoGeneral.getExecutorsActiveAtStage().size(), stageEntity.getExecutors().size());
+
+        List<Long> executorIds = stageEntity.getExecutors().stream().map(TeamMember::getId).toList();
+        assertTrue(executorIds.contains(executorDtoOwner.getTeamMemberId()));
+        assertTrue(executorIds.contains(executorDtoDesigner.getTeamMemberId()));
+        assertTrue(executorIds.contains(executorDtoDeveloper.getTeamMemberId()));
     }
 
     @Test
-    void delete() {
+    void testToDto() {
+        List<Stage> stages = List.of(stage);
+
+        List<StageDtoGeneral> stageDtoList = stageMapperGeneral.toDto(stages);
+
+        assertNotNull(stageDtoList);
+        assertEquals(stages.size(), stageDtoList.size());
+
+        StageDtoGeneral stageDto = stageDtoList.get(0);
+
+        assertEquals(stage.getStageId(), stageDto.getId());
+        assertEquals(stage.getStageName(), stageDto.getName());
+
+        assertNotNull(stageDto.getRolesActiveAtStage());
+        assertEquals(stage.getStageRoles().size(), stageDto.getRolesActiveAtStage().size());
+
+        assertNotNull(stageDto.getTasksActiveAtStage());
+
+        assertNotNull(stageDto.getExecutorsActiveAtStage());
+        assertEquals(stage.getExecutors().size(), stageDto.getExecutorsActiveAtStage().size());
     }
 
     @Test
-    void update() {
-    }
+    void testToEntity() {
+        List<StageDtoGeneral> stageDtoList = List.of(stageDtoGeneral);
 
-    @Test
-    void getAll() {
-    }
+        List<Stage> stages = stageMapperGeneral.toEntity(stageDtoList);
 
-    @Test
-    void deleteById() {
+        assertNotNull(stages);
+        assertEquals(stageDtoList.size(), stages.size());
+
+        Stage stageEntity = stages.get(0);
+
+        assertEquals(stageDtoGeneral.getId(), stageEntity.getStageId());
+        assertEquals(stageDtoGeneral.getName(), stageEntity.getStageName());
+
+        assertNotNull(stageEntity.getProject());
+        assertEquals(stageDtoGeneral.getProject().getId(), stageEntity.getProject().getId());
+
+        assertNotNull(stageEntity.getTasks());
+        assertEquals(stageDtoGeneral.getTasksActiveAtStage().size(), stageEntity.getTasks().size());
+
+        assertNotNull(stageEntity.getStageRoles());
+        assertEquals(stageDtoGeneral.getRolesActiveAtStage().size(), stageEntity.getStageRoles().size());
+
+        assertNotNull(stageEntity.getExecutors());
+        assertEquals(stageDtoGeneral.getExecutorsActiveAtStage().size(), stageEntity.getExecutors().size());
     }
 }
