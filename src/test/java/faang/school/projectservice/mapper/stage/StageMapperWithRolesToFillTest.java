@@ -80,17 +80,17 @@ class StageMapperWithRolesToFillTest {
         stageRolesOwner = new StageRoles();
         stageRolesOwner.setId(1L);
         stageRolesOwner.setTeamRole(TeamRole.OWNER);
-        //stageRolesOwner.setStage(stage);
+        stageRolesOwner.setStage(stage);
 
         stageRolesDesigner = new StageRoles();
         stageRolesDesigner.setId(2L);
         stageRolesDesigner.setTeamRole(TeamRole.DESIGNER);
-        //stageRolesDesigner.setStage(stage);
+        stageRolesDesigner.setStage(stage);
 
         stageRolesDeveloper = new StageRoles();
         stageRolesDeveloper.setId(3L);
         stageRolesDeveloper.setTeamRole(TeamRole.DEVELOPER);
-        //stageRolesDeveloper.setStage(stage);
+        stageRolesDeveloper.setStage(stage);
 
         // Adding roles to the stage
         stage.setStageRoles(List.of(stageRolesOwner, stageRolesDesigner, stageRolesDeveloper));
