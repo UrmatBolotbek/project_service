@@ -42,6 +42,8 @@ public interface StageMapperGeneral {
     @Mapping(source = "executors", target = "executorsActiveAtStage")
     List<StageDtoGeneral> toDto(List<Stage> stages);
 
+    @Mapping(source = "id", target = "stageId")
+    @Mapping(source = "name", target = "stageName")
     @Mapping(source = "rolesActiveAtStage", target = "stageRoles")
     @Mapping(source = "tasksActiveAtStage", target = "tasks")
     @Mapping(source = "executorsActiveAtStage", target = "executors")

@@ -1,16 +1,14 @@
 package faang.school.projectservice.controller;
 
+import faang.school.projectservice.dto.stage.StageDeletionOptionDto;
 import faang.school.projectservice.dto.stage.StageDtoGeneral;
 import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageFilterDto;
-import faang.school.projectservice.service.stage.StageDeletionOption;
 import faang.school.projectservice.service.stage.StageService;
 import faang.school.projectservice.validator.Stage.StageValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -30,10 +28,8 @@ public class StageController {
         return stageService.getByFilter(filter);
     }
 
-    public void deleteStage(@RequestBody StageDtoGeneral stageDtoGeneral,
-                            @RequestParam StageDeletionOption option,
-                            @RequestBody(required = false) StageDtoGeneral targetStageDtoGeneral) {
-        stageService.delete(stageDtoGeneral, option, targetStageDtoGeneral);
+    public void deleteStage(StageDtoGeneral stageDtoGeneral, StageDeletionOptionDto option) {
+        stageService.delete(stageDtoGeneral, option);
     }
 
     public StageDtoWithRolesToFill update(StageDtoGeneral stageDtoGeneral) {

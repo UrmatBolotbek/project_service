@@ -1,7 +1,6 @@
 package faang.school.projectservice.mapper.project;
 
 import faang.school.projectservice.dto.stage.ProjectDto;
-
 import faang.school.projectservice.model.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

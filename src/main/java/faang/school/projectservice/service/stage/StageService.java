@@ -1,14 +1,15 @@
 package faang.school.projectservice.service.stage;
 
+import faang.school.projectservice.dto.stage.StageDeletionOptionDto;
 import faang.school.projectservice.dto.stage.StageDtoGeneral;
 import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageFilterDto;
 import faang.school.projectservice.mapper.stage.StageMapperGeneral;
 import faang.school.projectservice.mapper.stage.StageMapperWithRolesToFill;
-import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.repository.StageRepository;
 import faang.school.projectservice.service.stage.filters.StageFilter;
+import faang.school.projectservice.service.stage.stage_deletion.StageDeletionStrategy;
 import faang.school.projectservice.validator.Stage.StageValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ public class StageService {
     private final StageMapperWithRolesToFill stageMapperWithRolesToFill;
     private final StageValidator stageValidator;
     private final List<StageFilter> stageFilters;
+    private final List<StageDeletionStrategy> deletionStrategies;
+
 
     public StageDtoWithRolesToFill create(StageDtoGeneral stageDtoGeneral) {
         stageValidator.validateProjectNotClosed(stageDtoGeneral.getProject().getId());
@@ -49,41 +52,14 @@ public class StageService {
         return stageMapperGeneral.toDto(stages);
     }
 
-    public void delete(StageDtoGeneral stageDtoGeneral, StageDeletionOption option, StageDtoGeneral targetStageDtoGeneral) {
-        Stage stage = stageMapperGeneral.toEntity(stageDtoGeneral);
-        switch (option) {
-            case CASCADE_DELETE:
-                stage.getTasks().clear();
-                stageRepository.delete(stage);
-                log.info("Deleted stage: {} with all associated tasks(cascade delete)", stage);
-                break;
+    public void delete(StageDtoGeneral stageDtoGeneral, StageDeletionOptionDto option) {
+        StageDeletionStrategy applicableStrategy = deletionStrategies.stream()
+                .filter(strategy -> strategy.isApplicable(option))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported deletion option"));
 
-            case CANCEL_TASKS:
-                stage.getTasks().forEach(task -> {
-                    if (task.getStatus() != TaskStatus.DONE) {
-                        task.setStatus(TaskStatus.CANCELLED);
-                    }
-                });
-                stageRepository.delete(stage);
-                log.info("Delete stage: {} and set non-DONE tasks to CANCELLED", stageDtoGeneral);
-                break;
-
-            case MOVE_TASKS_TO_ANOTHER_STAGE:
-                if (targetStageDtoGeneral == null) {
-                    throw new IllegalArgumentException("Target stage is required for moving tasks");
-                }
-                Stage targetStage = stageMapperGeneral.toEntity(targetStageDtoGeneral);
-                targetStage.getTasks().addAll(stage.getTasks());
-                stage.getTasks().clear();
-                stageRepository.save(targetStage);
-                stageRepository.delete(stage);
-                log.info("Deleted stage: {} and moved tasks to stage {}", stageDtoGeneral, targetStageDtoGeneral);
-                break;
-
-            default:
-                log.error("Unsupported option during deletion: {}", option);
-                throw new IllegalArgumentException("Unsupported option: " + option);
-        }
+        List<Stage> affectedStages = applicableStrategy.execute(stageDtoGeneral, option, option.getTargetStage());
+        log.info("Affected stages after deletion: {}", affectedStages);
     }
 
     public StageDtoWithRolesToFill update(StageDtoGeneral stageDtoGeneral) {
