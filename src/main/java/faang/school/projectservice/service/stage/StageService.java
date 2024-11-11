@@ -65,6 +65,7 @@ public class StageService {
     public StageDtoWithRolesToFill update(StageDtoGeneral stageDtoGeneral) {
         stageValidator.validateEveryTeamMemberHasRoleAtStage(stageDtoGeneral);
         stageValidator.validateProjectNotClosed(stageDtoGeneral.getProject().getId());
+        stageValidator.validateStageExistsInDatabase(stageDtoGeneral);
 
         Stage stage = stageMapperGeneral.toEntity(stageDtoGeneral);
         stageRepository.save(stage);

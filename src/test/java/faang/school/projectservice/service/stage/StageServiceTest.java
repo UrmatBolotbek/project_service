@@ -174,6 +174,7 @@ class StageServiceTest {
         // Assert
         verify(stageValidator).validateEveryTeamMemberHasRoleAtStage(stageDtoGeneral);
         verify(stageValidator).validateProjectNotClosed(stageDtoGeneral.getProject().getId());
+        verify(stageValidator).validateStageExistsInDatabase(stageDtoGeneral);
         verify(stageRepository).save(stage);
         verify(stageMapperWithRolesToFill).toDto(stage);
         assertEquals(stageDtoWithRolesToFill, result);

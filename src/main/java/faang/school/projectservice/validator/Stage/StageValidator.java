@@ -4,7 +4,9 @@ import faang.school.projectservice.dto.stage.StageDtoGeneral;
 import faang.school.projectservice.exception.DataValidationException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
+import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.repository.ProjectRepository;
+import faang.school.projectservice.repository.StageRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class StageValidator {
 
     private final ProjectRepository projectRepository;
+    private final StageRepository stageRepository;
 
     public void validateProjectNotClosed(Long projectId) {
         Project project = projectRepository.getProjectById(projectId);
@@ -52,6 +55,17 @@ public class StageValidator {
                 .anyMatch(role -> role.getCount() == null || role.getCount() <= 0);
         if (invalidRoleCount) {
             throw new DataValidationException("Count of people needed for each role at this stage is required");
+        }
+    }
+
+    public void validateStageExistsInDatabase(StageDtoGeneral stageDtoGeneral) {
+        Long dtoStageId = stageDtoGeneral.getId();
+        if (dtoStageId == null) {
+            throw new DataValidationException("Stage id is required");
+        }
+        Stage stageInDatabase = stageRepository.getById(dtoStageId);
+        if(stageInDatabase == null){
+            throw new DataValidationException("Stage with id " + dtoStageId + " does not exist");
         }
     }
 }

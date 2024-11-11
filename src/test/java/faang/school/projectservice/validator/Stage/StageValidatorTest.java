@@ -8,7 +8,9 @@ import faang.school.projectservice.exception.DataValidationException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
 import faang.school.projectservice.model.TeamRole;
+import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.repository.ProjectRepository;
+import faang.school.projectservice.repository.StageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,8 @@ class StageValidatorTest {
 
     @Mock
     private ProjectRepository projectRepository;
+    @Mock
+    private StageRepository stageRepository;
 
     @InjectMocks
     private StageValidator stageValidator;
@@ -186,5 +190,28 @@ class StageValidatorTest {
             stageValidator.validateStage(stageDtoGeneral);
         });
         assertEquals("Count of people needed for each role at this stage is required", exception.getMessage());
+    }
+
+    @Test
+    void validateStageExistsInDatabaseWithStageExists() {
+        Stage stage = new Stage();
+        stage.setStageId(1L);
+        stageDtoGeneral.setId(1L);
+        when(stageRepository.getById(1L)).thenReturn(stage);
+
+        stageValidator.validateStageExistsInDatabase(stageDtoGeneral);
+    }
+
+    @Test
+    void validateStageExistsInDatabaseWithNoStageExists() {
+        stageDtoGeneral.setId(2L);
+
+        when(stageRepository.getById(2L)).thenReturn(null);
+
+        DataValidationException exception = assertThrows(DataValidationException.class, () -> {
+            stageValidator.validateStageExistsInDatabase(stageDtoGeneral);
+        });
+
+        assertEquals("Stage with id " + stageDtoGeneral.getId() + " does not exist", exception.getMessage());
     }
 }
