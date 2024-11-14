@@ -1,9 +1,6 @@
-name: Java CI for Griffon Stream-7
+name: Build project Griffon Stream-7
 
 on:
-  push:
-    branches:
-      - Griffon-master-stream7
   pull_request:
     branches:
       - Griffon-master-stream7
@@ -15,18 +12,23 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v4.0.0
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-      - name: Build with Gradle Wrapper
-        run: ./gradlew build
+      - name: Build
+        run: ./gradlew build -x test
+
+      - name: Tests
+        run: ./gradlew test
 
   dependency-submission:
     runs-on: ubuntu-latest
