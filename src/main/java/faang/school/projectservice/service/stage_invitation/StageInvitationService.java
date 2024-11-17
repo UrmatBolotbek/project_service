@@ -1,8 +1,8 @@
 package faang.school.projectservice.service.stage_invitation;
 
+import faang.school.projectservice.dto.invitation.StageInvitationFilterDto;
 import faang.school.projectservice.dto.invitation.StageInvitationRequestDto;
 import faang.school.projectservice.dto.invitation.StageInvitationResponseDto;
-import faang.school.projectservice.dto.invitation.StageInvitationFilterDto;
 import faang.school.projectservice.mapper.StageInvitationMapper;
 import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.model.stage_invitation.StageInvitation;
@@ -10,14 +10,14 @@ import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
 import faang.school.projectservice.repository.StageInvitationRepository;
 import faang.school.projectservice.service.stage_invitation.filter.StageInvitationFilter;
 import faang.school.projectservice.validator.StageInvitationValidator;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-@Data
 @Service
+@RequiredArgsConstructor
 public class StageInvitationService {
     private final StageInvitationRepository stageInvitationRepository;
     private final StageInvitationMapper stageInvitationMapper;
@@ -60,7 +60,6 @@ public class StageInvitationService {
 
     public List<StageInvitationResponseDto> viewAllUserInvitations(StageInvitationFilterDto filter) {
         List<StageInvitation> allInvitationOfInvited = stageInvitationRepository.findAll().stream()
-                .filter(i -> i.getInvited().getId().equals(filter.getInvitedIdPattern()))
                 .toList();
 
         return filterInvitation(allInvitationOfInvited, filter);

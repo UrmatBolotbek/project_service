@@ -37,7 +37,7 @@ public class StageInvitationController {
         return stageInvitationService.rejectInvitation(invitationId, invitationRsDto);
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping
     public List<StageInvitationResponseDto> viewAllUserInvitations(@ModelAttribute StageInvitationFilterDto filter) {
         return stageInvitationService.viewAllUserInvitations(filter);
     }
