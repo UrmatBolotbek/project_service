@@ -1,4 +1,4 @@
-package validation;
+package faang.school.projectservice.validation;
 
 import faang.school.projectservice.dto.invitation.StageInvitationRequestDto;
 import faang.school.projectservice.exception.DataValidationException;

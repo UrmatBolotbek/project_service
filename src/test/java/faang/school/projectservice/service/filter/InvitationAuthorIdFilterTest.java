@@ -1,4 +1,4 @@
-package service.filter;
+package faang.school.projectservice.service.filter;
 
 import faang.school.projectservice.model.stage_invitation.StageInvitation;
 import faang.school.projectservice.service.stage_invitation.filter.InvitationAuthorIdFilter;
@@ -19,7 +19,7 @@ public class InvitationAuthorIdFilterTest extends InvitationFilterTest {
 
     @Test
     public void testIsNotApplicable() {
-        IsNotApplicableCheck(authorIdFilter, filter.getAuthorIdPattern(), null);
+        IsNotApplicableCheck(authorIdFilter, filter.getAuthorIdPattern(), 0L);
     }
 
     @Test
