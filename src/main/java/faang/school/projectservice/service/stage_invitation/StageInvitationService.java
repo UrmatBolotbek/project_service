@@ -9,7 +9,7 @@ import faang.school.projectservice.model.stage_invitation.StageInvitation;
 import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
 import faang.school.projectservice.repository.StageInvitationRepository;
 import faang.school.projectservice.service.stage_invitation.filter.StageInvitationFilter;
-import faang.school.projectservice.validator.StageInvitationValidator;
+import faang.school.projectservice.validator.stage_invitation.StageInvitationValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

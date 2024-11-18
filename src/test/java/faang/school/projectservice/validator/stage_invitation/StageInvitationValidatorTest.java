@@ -1,10 +1,10 @@
-package faang.school.projectservice.validation;
+package faang.school.projectservice.validator.stage_invitation;
 
 import faang.school.projectservice.dto.invitation.StageInvitationRequestDto;
 import faang.school.projectservice.exception.DataValidationException;
 import faang.school.projectservice.model.stage_invitation.StageInvitation;
 import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
-import faang.school.projectservice.validator.StageInvitationValidator;
+import faang.school.projectservice.validator.stage_invitation.StageInvitationValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
