@@ -10,7 +10,7 @@ import faang.school.projectservice.model.stage.Stage;
 import faang.school.projectservice.repository.StageRepository;
 import faang.school.projectservice.service.stage.filters.StageFilter;
 import faang.school.projectservice.service.stage.stage_deletion.StageDeletionStrategy;
-import faang.school.projectservice.validator.Stage.StageValidator;
+import faang.school.projectservice.validator.stage.StageValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
