@@ -5,7 +5,7 @@ import faang.school.projectservice.dto.stage.StageDtoGeneral;
 import faang.school.projectservice.dto.stage.StageDtoWithRolesToFill;
 import faang.school.projectservice.dto.stage.StageFilterDto;
 import faang.school.projectservice.service.stage.StageService;
-import faang.school.projectservice.validator.Stage.StageValidator;
+import faang.school.projectservice.validator.stage.StageValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

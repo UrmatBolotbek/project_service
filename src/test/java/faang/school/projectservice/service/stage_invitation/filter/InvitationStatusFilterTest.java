@@ -1,8 +1,7 @@
-package faang.school.projectservice.service.filter;
+package faang.school.projectservice.service.stage_invitation.filter;
 
 import faang.school.projectservice.model.stage_invitation.StageInvitation;
 import faang.school.projectservice.model.stage_invitation.StageInvitationStatus;
-import faang.school.projectservice.service.stage_invitation.filter.InvitationStatusFilter;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;

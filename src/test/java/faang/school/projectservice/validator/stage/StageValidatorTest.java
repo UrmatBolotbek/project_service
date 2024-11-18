@@ -1,4 +1,4 @@
-package faang.school.projectservice.validator.Stage;
+package faang.school.projectservice.validator.stage;
 
 import faang.school.projectservice.dto.stage.ExecutorDto;
 import faang.school.projectservice.dto.stage.ProjectDto;

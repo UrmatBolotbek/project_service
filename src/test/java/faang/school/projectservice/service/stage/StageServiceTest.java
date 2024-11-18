@@ -17,7 +17,7 @@ import faang.school.projectservice.service.stage.filters.StageFilter;
 import faang.school.projectservice.service.stage.filters.StageTaskStatusFilter;
 import faang.school.projectservice.service.stage.filters.StageTeamRoleFilter;
 import faang.school.projectservice.service.stage.stage_deletion.StageDeletionStrategy;
-import faang.school.projectservice.validator.Stage.StageValidator;
+import faang.school.projectservice.validator.stage.StageValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

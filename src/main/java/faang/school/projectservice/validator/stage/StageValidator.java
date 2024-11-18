@@ -1,4 +1,4 @@
-package faang.school.projectservice.validator.Stage;
+package faang.school.projectservice.validator.stage;
 
 import faang.school.projectservice.dto.stage.StageDtoGeneral;
 import faang.school.projectservice.exception.DataValidationException;
