@@ -1,4 +1,4 @@
-package faang.school.projectservice.controller;
+package faang.school.projectservice.controller.stage;
 
 import faang.school.projectservice.dto.stage.StageDeletionOptionDto;
 import faang.school.projectservice.dto.stage.StageDtoGeneral;

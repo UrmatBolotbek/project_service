@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static faang.school.projectservice.model.stage_invitation.StageInvitationStatus.PENDING;
+
 @Service
 @RequiredArgsConstructor
 public class StageInvitationService {
@@ -28,6 +30,7 @@ public class StageInvitationService {
     public StageInvitationResponseDto createInvitation(StageInvitationRequestDto invitationRqDto) {
         stageInvitationValidate.validateInvitation(invitationRqDto);
         StageInvitation invitation = stageInvitationMapper.toEntity(invitationRqDto);
+        invitation.setStatus(PENDING);
         stageInvitationRepository.save(invitation);
 
         return stageInvitationMapper.toDto(invitation);
