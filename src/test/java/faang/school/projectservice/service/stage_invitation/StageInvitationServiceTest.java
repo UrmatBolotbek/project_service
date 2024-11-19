@@ -12,10 +12,13 @@ import faang.school.projectservice.repository.StageInvitationRepository;
 import faang.school.projectservice.service.stage_invitation.filter.StageInvitationFilter;
 import faang.school.projectservice.validator.stage_invitation.StageInvitationValidator;
 import lombok.Data;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -38,8 +41,8 @@ public class StageInvitationServiceTest {
     @Mock
     private StageInvitationRepository stageInvitationRepository;
 
-    @Mock
-    private StageInvitationMapper stageInvitationMapper;
+    @Spy
+    private StageInvitationMapper stageInvitationMapper = Mappers.getMapper(StageInvitationMapper.class);
 
     @Mock
     private StageInvitationValidator stageInvitationValidate;
@@ -47,16 +50,18 @@ public class StageInvitationServiceTest {
     @Mock
     private List<StageInvitationFilter> invitationFilters;
 
-    private StageInvitationResponseDto invitationRsDto;
     private StageInvitationRequestDto invitationRqDto;
     private StageInvitation invitation;
-    private TeamMember invitedMember;
-    private TeamMember executor;
+
+    @BeforeEach
+    public void init() {
+        invitationRqDto = new StageInvitationRequestDto();
+        invitation = stageInvitationMapper.toEntity(invitationRqDto);
+    }
 
     @Test
     public void testCreateInvitation() {
-        when(stageInvitationMapper.toEntity(invitationRqDto)).thenReturn(invitation);
-        when(stageInvitationMapper.toDto(invitation)).thenReturn(new StageInvitationResponseDto());
+        invitation.setStatus(StageInvitationStatus.PENDING);
 
         StageInvitationResponseDto response = service.createInvitation(invitationRqDto);
 
@@ -68,11 +73,10 @@ public class StageInvitationServiceTest {
 
     @Test
     public void testAcceptInvitation() {
-        invitation = new StageInvitation();
         Long invitationId = 1L;
 
         Stage stage = new Stage();
-        invitedMember = new TeamMember();
+        TeamMember invitedMember = new TeamMember();
         List<TeamMember> executors = new ArrayList<>();
         executors.add(invitedMember);
         stage.setExecutors(executors);
@@ -80,7 +84,6 @@ public class StageInvitationServiceTest {
         invitation.setStage(stage);
 
         when(stageInvitationRepository.findById(invitationId)).thenReturn(invitation);
-        when(stageInvitationMapper.toDto(invitation)).thenReturn(new StageInvitationResponseDto());
 
         StageInvitationResponseDto response = service.acceptInvitation(invitationId);
 
@@ -101,7 +104,6 @@ public class StageInvitationServiceTest {
         invitationRqDto.setInvitedId(3L);
 
         when(stageInvitationRepository.findById(invitationId)).thenReturn(invitation);
-        when(stageInvitationMapper.toDto(invitation)).thenReturn(new StageInvitationResponseDto());
 
         StageInvitationResponseDto response = service.rejectInvitation(invitationId, invitationRqDto);
 
