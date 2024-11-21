@@ -1,6 +1,7 @@
 package faang.school.projectservice.service.image;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
+@Service
 public class ImageService {
     public InputStream processImage(InputStream inputStream, boolean isSquare) throws IOException {
         log.info("Reading and processing image...");
