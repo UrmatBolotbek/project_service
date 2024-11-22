@@ -31,6 +31,8 @@ public class ProjectService {
         coverValidator.validateFileSize(file.getSize());
         coverValidator.validateProjectIdNotNull(projectId);
 
+        Project project = projectRepository.getProjectById(projectId);
+
         BufferedImage originalImage = ImageIO.read(file.getInputStream());
         if (originalImage == null) {
             throw new IllegalArgumentException("Invalid image file format.");
@@ -41,7 +43,6 @@ public class ProjectService {
 
         String coverImageId = s3Service.uploadFile("cover_" + projectId, processedImageStream, file.getContentType());
 
-        Project project = projectRepository.getProjectById(projectId);
         project.setCoverImageId(coverImageId);
         projectRepository.save(project);
         log.info("Cover image for project ID '{}' successfully uploaded and saved.", projectId);
