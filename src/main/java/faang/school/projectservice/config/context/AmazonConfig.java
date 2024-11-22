@@ -16,7 +16,7 @@ public class AmazonConfig {
     @Value("${services.s3.endpoint}")
     private String endpoint;
 
-    @Value(("${services.s3.accessKey"))
+    @Value("${services.s3.accessKey}")
     private String accessKey;
 
     @Value("${services.s3.secretKey}")
@@ -28,6 +28,7 @@ public class AmazonConfig {
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, null))
+                .withPathStyleAccessEnabled(true)
                 .build();
 
 

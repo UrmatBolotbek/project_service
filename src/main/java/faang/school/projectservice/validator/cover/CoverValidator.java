@@ -5,12 +5,18 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class FileValidator {
+public class CoverValidator {
 
     public void validateFileSize(long fileSize) {
-        if (fileSize > 5 * 1024 * 1024) { // 5 MB
+        if (fileSize > 5 * 1024 * 1024) {
             log.error("File size exceeds the 5MB limit: {} bytes", fileSize);
             throw new IllegalArgumentException("File size exceeds the 5MB limit.");
+        }
+    }
+
+    public void validateProjectIdNotNull(Long projectId) {
+        if (projectId == null) {
+            throw new IllegalArgumentException("Project ID cannot be null.");
         }
     }
 }

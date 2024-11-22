@@ -4,7 +4,7 @@ import faang.school.projectservice.model.Project;
 import faang.school.projectservice.repository.ProjectRepository;
 import faang.school.projectservice.service.image.ImageService;
 import faang.school.projectservice.service.s3.S3Service;
-import faang.school.projectservice.validator.cover.FileValidator;
+import faang.school.projectservice.validator.cover.CoverValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,18 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final S3Service s3Service;
     private final ImageService imageService;
-    private final FileValidator fileValidator;
+    private final CoverValidator coverValidator;
 
     public void uploadCoverImage(Long projectId, MultipartFile file) throws IOException {
         log.info("Uploading cover image for project with ID: {}", projectId);
 
-        fileValidator.validateFileSize(file.getSize());
+        coverValidator.validateFileSize(file.getSize());
+        coverValidator.validateProjectIdNotNull(projectId);
 
         BufferedImage originalImage = ImageIO.read(file.getInputStream());
+        if (originalImage == null) {
+            throw new IllegalArgumentException("Invalid image file format.");
+        }
         boolean isSquare = originalImage.getWidth() == originalImage.getHeight();
 
         InputStream processedImageStream = imageService.processImage(file.getInputStream(), isSquare);
