@@ -90,7 +90,7 @@ public class MomentControllerTest {
                                         "date": "2024-11-18T12:00:00"
                                     }
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(MOMENT_ID))
                 .andExpect(jsonPath("$.name").value(MOMENT_NAME))
                 .andExpect(jsonPath("$.imageId").value(IMAGE_ID));
