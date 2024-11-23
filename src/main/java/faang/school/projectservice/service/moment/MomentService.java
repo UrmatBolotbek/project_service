@@ -3,6 +3,7 @@ package faang.school.projectservice.service.moment;
 import faang.school.projectservice.dto.moment.MomentRequestDto;
 import faang.school.projectservice.dto.moment.MomentRequestFilterDto;
 import faang.school.projectservice.dto.moment.MomentResponseDto;
+import faang.school.projectservice.dto.moment.MomentUpdateDto;
 import faang.school.projectservice.mapper.moment.MomentMapper;
 import faang.school.projectservice.model.Moment;
 import faang.school.projectservice.model.Project;
@@ -42,6 +43,7 @@ public class MomentService {
         return momentMapper.toDto(saveMoment);
     }
 
+    @Transactional
     public MomentResponseDto updateMomentByProjects(Long momentId, List<Long> projectIds) {
         log.info("Updating moment with ID = {}", momentId);
 
@@ -49,10 +51,11 @@ public class MomentService {
         Moment updateMoment = momentValidator.validateExistingMoment(momentId);
         Moment saveMoment = saveMoment(updateMoment, projects);
 
-        log.info("Moment with ID is update {}", saveMoment.getId());
+        log.info("Moment with ID is updated {}", saveMoment.getId());
         return momentMapper.toDto(saveMoment);
     }
 
+    @Transactional
     public MomentResponseDto updateMomentByUser(Long momentId, Long userId) {
         log.info("Updating moment with ID = {} and by user ID = {}", momentId, userId);
 
@@ -62,6 +65,18 @@ public class MomentService {
 
         log.info("Moment with ID is updated {}", saveMoment.getId());
         return momentMapper.toDto(saveMoment);
+    }
+
+    @Transactional
+    public MomentResponseDto updateMoment(Long momentId, MomentUpdateDto momentUpdateDto) {
+        log.info("Updating moment with ID = {}", momentId);
+
+        Moment updateMoment = momentValidator.validateExistingMoment(momentId);
+        momentMapper.updateFromDto(momentUpdateDto, updateMoment);
+        updateMoment = momentRepository.save(updateMoment);
+
+        log.info("Moment with ID is updated {}", momentId);
+        return momentMapper.toDto(updateMoment);
     }
 
     public List<MomentResponseDto> getAllProjectMomentsByFilters(long projectId, MomentRequestFilterDto filterDto) {

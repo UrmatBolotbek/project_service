@@ -28,8 +28,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MomentServiceTest {
     private static final long MOMENT_ID = 1L;
-    private static final long PROJECT_ID = 1L;
-    private static final long USER_ID = 1L;
+    private static final long PROJECT_ID = 2L;
+    private static final long USER_ID = 3L;
 
     private static final String MOMENT_NAME = "Test Moment";
     private static final String MOMENT_DESCRIPTION = "Test Description";

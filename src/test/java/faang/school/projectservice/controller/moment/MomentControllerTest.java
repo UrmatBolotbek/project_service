@@ -2,6 +2,7 @@ package faang.school.projectservice.controller.moment;
 
 import faang.school.projectservice.dto.moment.MomentRequestDto;
 import faang.school.projectservice.dto.moment.MomentResponseDto;
+import faang.school.projectservice.dto.moment.MomentUpdateDto;
 import faang.school.projectservice.service.moment.MomentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 public class MomentControllerTest {
-
     private static final Long MOMENT_ID = 1L;
     private static final Long USER_ID = 2L;
     private static final Long PROJECT_ID = 3L;
@@ -35,6 +35,8 @@ public class MomentControllerTest {
     private static final String MOMENT_DESC = "This is a milestone";
     private static final LocalDateTime MOMENT_DATE = LocalDateTime.of(2024, 11, 18, 12, 0);
     private static final String IMAGE_ID = "image123";
+    private static final String UPDATED_NAME = "Updated Moment Name";
+    private static final String UPDATED_DESCRIPTION = "Updated Moment Description";
 
     private MockMvc mockMvc;
 
@@ -45,6 +47,8 @@ public class MomentControllerTest {
     private MomentController momentController;
 
     private MomentResponseDto momentResponseDto;
+    private MomentResponseDto updatedResponseDto;
+    private MomentUpdateDto momentUpdateDto;
 
     @BeforeEach
     public void setUp() {
@@ -58,6 +62,17 @@ public class MomentControllerTest {
                 .userIds(List.of(USER_ID))
                 .date(MOMENT_DATE)
                 .imageId(IMAGE_ID)
+                .build();
+
+        updatedResponseDto = MomentResponseDto.builder()
+                .id(MOMENT_ID)
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESCRIPTION)
+                .build();
+
+        momentUpdateDto = MomentUpdateDto.builder()
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESCRIPTION)
                 .build();
     }
 
@@ -108,6 +123,26 @@ public class MomentControllerTest {
                 .andExpect(jsonPath("$.name").value(MOMENT_NAME));
 
         verify(momentService).updateMomentByUser(eq(MOMENT_ID), eq(USER_ID));
+    }
+
+    @Test
+    public void testUpdateMoment() throws Exception {
+        when(momentService.updateMoment(eq(MOMENT_ID), eq(momentUpdateDto))).thenReturn(updatedResponseDto);
+
+        mockMvc.perform(put("/api/v1/moments/" + MOMENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "Updated Moment Name",
+                                    "description": "Updated Moment Description"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(MOMENT_ID))
+                .andExpect(jsonPath("$.name").value(UPDATED_NAME))
+                .andExpect(jsonPath("$.description").value(UPDATED_DESCRIPTION));
+
+        verify(momentService).updateMoment(eq(MOMENT_ID), eq(momentUpdateDto));
     }
 
     @Test
