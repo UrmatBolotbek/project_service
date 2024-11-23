@@ -1,0 +1,105 @@
+package faang.school.projectservice.service.moment;
+
+import faang.school.projectservice.dto.moment.MomentRequestDto;
+import faang.school.projectservice.dto.moment.MomentRequestFilterDto;
+import faang.school.projectservice.dto.moment.MomentResponseDto;
+import faang.school.projectservice.mapper.moment.MomentMapper;
+import faang.school.projectservice.model.Moment;
+import faang.school.projectservice.model.Project;
+import faang.school.projectservice.model.TeamMember;
+import faang.school.projectservice.repository.MomentRepository;
+import faang.school.projectservice.service.moment.filter.MomentFilter;
+import faang.school.projectservice.validator.moment.MomentValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MomentService {
+    private final MomentValidator momentValidator;
+    private final MomentRepository momentRepository;
+    private final MomentMapper momentMapper;
+    private final List<MomentFilter> momentFilters;
+
+    @Transactional
+    public MomentResponseDto create(MomentRequestDto momentDto) {
+        log.info("Creating moment with name {}", momentDto.getName());
+
+        List<Project> projects = momentValidator.validateProjectsByIdAndStatus(momentDto.getProjectIds());
+        Moment moment = momentMapper.toEntity(momentDto);
+        Moment saveMoment = saveMoment(moment, projects);
+
+        log.info("Moment created with ID = {}", saveMoment.getId());
+
+        return momentMapper.toDto(saveMoment);
+    }
+
+    public MomentResponseDto updateMomentByProjects(Long momentId, List<Long> projectIds) {
+        log.info("Updating moment with ID = {}", momentId);
+
+        List<Project> projects = momentValidator.validateProjectsByIdAndStatus(projectIds);
+        Moment updateMoment = momentValidator.validateExistingMoment(momentId);
+        Moment saveMoment = saveMoment(updateMoment, projects);
+
+        log.info("Moment with ID is update {}", saveMoment.getId());
+        return momentMapper.toDto(saveMoment);
+    }
+
+    public MomentResponseDto updateMomentByUser(Long momentId, Long userId) {
+        log.info("Updating moment with ID = {} and by user ID = {}", momentId, userId);
+
+        List<Project> projects = momentValidator.validateProjectsByUserIdAndStatus(userId);
+        Moment updateMoment = momentValidator.validateExistingMoment(momentId);
+        Moment saveMoment = saveMoment(updateMoment, projects);
+
+        log.info("Moment with ID is updated {}", saveMoment.getId());
+        return momentMapper.toDto(saveMoment);
+    }
+
+    public List<MomentResponseDto> getAllProjectMomentsByFilters(long projectId, MomentRequestFilterDto filterDto) {
+        Stream<Moment> moments = momentRepository.findAllByProjectId(projectId).stream();
+        momentFilters.stream()
+                .filter(filter -> filter.isApplicable(filterDto))
+                .forEach(filter -> filter.apply(moments, filterDto));
+        log.info("Getting a list of project moments after filtering");
+        return momentMapper.toDtoList(moments.toList());
+    }
+
+    public List<MomentResponseDto> getAllMoments() {
+        return momentMapper.toDtoList(momentRepository.findAll());
+    }
+
+    public MomentResponseDto getMoment(long momentId) {
+        return momentMapper.toDto(momentValidator.validateExistingMoment(momentId));
+    }
+
+    private Moment saveMoment(Moment moment, List<Project> projects) {
+        moment.setProjects(projects);
+        moment.setUserIds(getUserIdsByProjects(projects));
+        for (Project project : projects) {
+            if (project.getMoments().isEmpty()) {
+                project.setMoments(new ArrayList<>(Collections.singletonList(moment)));
+            } else {
+                project.getMoments().add(moment);
+            }
+        }
+        return momentRepository.save(moment);
+    }
+
+    private List<Long> getUserIdsByProjects(List<Project> projects) {
+        return projects.stream()
+                .flatMap(project -> project.getTeams().stream())
+                .flatMap(team -> team.getTeamMembers().stream())
+                .map(TeamMember::getId)
+                .distinct()
+                .toList();
+    }
+}

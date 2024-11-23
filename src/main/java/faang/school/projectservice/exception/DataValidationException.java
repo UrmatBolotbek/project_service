@@ -9,4 +9,8 @@ public class DataValidationException extends RuntimeException {
     public DataValidationException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public DataValidationException(String message, Object... args) {
+        super(String.format(message, args));
+    }
 }
