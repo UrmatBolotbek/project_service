@@ -3,6 +3,7 @@ package faang.school.projectservice.service.moment;
 import faang.school.projectservice.dto.moment.MomentRequestDto;
 import faang.school.projectservice.dto.moment.MomentRequestFilterDto;
 import faang.school.projectservice.dto.moment.MomentResponseDto;
+import faang.school.projectservice.dto.moment.MomentUpdateDto;
 import faang.school.projectservice.mapper.moment.MomentMapper;
 import faang.school.projectservice.model.Moment;
 import faang.school.projectservice.model.Project;
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +54,7 @@ class MomentServiceTest {
     private Moment moment;
     private MomentRequestDto momentRequestDto;
     private MomentResponseDto momentResponseDto;
+    private MomentUpdateDto momentUpdateDto;
     private Project project;
 
     @BeforeEach
@@ -63,6 +66,11 @@ class MomentServiceTest {
                 .name(MOMENT_NAME)
                 .description(MOMENT_DESCRIPTION)
                 .projectIds(List.of(PROJECT_ID))
+                .build();
+
+        momentUpdateDto = MomentUpdateDto.builder()
+                .name("Updated Moment Name")
+                .description("Updated Description")
                 .build();
 
         momentResponseDto = MomentResponseDto.builder()
@@ -106,6 +114,22 @@ class MomentServiceTest {
 
         assertEquals(momentResponseDto, result);
         verify(momentRepository).save(moment);
+    }
+
+    @Test
+    void updateMoment_ShouldUpdateAndReturnMomentResponse() {
+        when(momentValidator.validateExistingMoment(MOMENT_ID)).thenReturn(moment);
+        doNothing().when(momentMapper).updateFromDto(momentUpdateDto, moment);
+        when(momentRepository.save(moment)).thenReturn(moment);
+        when(momentMapper.toDto(moment)).thenReturn(momentResponseDto);
+
+        MomentResponseDto result = momentService.updateMoment(MOMENT_ID, momentUpdateDto);
+
+        assertEquals(momentResponseDto, result);
+        verify(momentValidator).validateExistingMoment(MOMENT_ID);
+        verify(momentMapper).updateFromDto(momentUpdateDto, moment);
+        verify(momentRepository).save(moment);
+        verify(momentMapper).toDto(moment);
     }
 
     @Test
