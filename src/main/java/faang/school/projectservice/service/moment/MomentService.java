@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -99,13 +97,7 @@ public class MomentService {
     private Moment saveMoment(Moment moment, List<Project> projects) {
         moment.setProjects(projects);
         moment.setUserIds(getUserIdsByProjects(projects));
-        for (Project project : projects) {
-            if (project.getMoments().isEmpty()) {
-                project.setMoments(new ArrayList<>(Collections.singletonList(moment)));
-            } else {
-                project.getMoments().add(moment);
-            }
-        }
+        projects.forEach(project -> project.getMoments().add(moment));
         return momentRepository.save(moment);
     }
 
