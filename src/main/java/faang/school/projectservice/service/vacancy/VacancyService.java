@@ -67,7 +67,9 @@ public class VacancyService {
         updateVacancyStatus(vacancy, vacancyUpdateDto);
         log.info("Vacancy ID {} status updated to {}", vacancyId, vacancy.getStatus());
 
-        return vacancyMapper.toDto(vacancyRepository.save(vacancy));
+        vacancy = vacancyRepository.save(vacancy);
+
+        return vacancyMapper.toDto(vacancy);
     }
 
     @Transactional

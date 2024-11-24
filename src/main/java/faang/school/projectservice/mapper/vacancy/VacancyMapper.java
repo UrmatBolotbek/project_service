@@ -7,7 +7,6 @@ import faang.school.projectservice.model.Candidate;
 import faang.school.projectservice.model.Vacancy;
 import faang.school.projectservice.model.VacancyStatus;
 import faang.school.projectservice.model.WorkSchedule;
-import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,7 +16,7 @@ import org.mapstruct.ReportingPolicy;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+        unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface VacancyMapper {
     @Mapping(target = "projectId", source = "project.id")
     @Mapping(target = "candidateIds", source = "candidates", qualifiedByName = "candidateToId")
@@ -26,29 +25,16 @@ public interface VacancyMapper {
     VacancyResponseDto toDto(Vacancy vacancy);
 
     @Mapping(target = "project.id", source = "projectId")
-    @Mapping(target = "candidates", source = "candidateIds", qualifiedByName = "idToCandidate")
     @Mapping(target = "status", source = "status", qualifiedByName = "stringToStatus")
     @Mapping(target = "workSchedule", source = "workSchedule", qualifiedByName = "stringToSchedule")
     Vacancy toEntity(VacancyRequestDto vacancyDto);
 
     void updateFromDto(VacancyUpdateDto vacancyUpdateDto, @MappingTarget Vacancy vacancy);
 
-    List<VacancyResponseDto> toDtoList(List<Vacancy> recommendations);
-
     @Named("candidateToId")
     default List<Long> candidateToId(List<Candidate> candidates) {
         return candidates.stream()
                 .map(Candidate::getId)
-                .toList();
-    }
-
-    @Named("idToCandidate")
-    default List<Candidate> idToCandidate(List<Long> candidateIds) {
-        return candidateIds.stream()
-                .map(id -> Candidate.builder()
-                        .id(id)
-                        .build()
-                )
                 .toList();
     }
 
