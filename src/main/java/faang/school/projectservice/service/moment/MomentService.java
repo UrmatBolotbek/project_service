@@ -42,7 +42,7 @@ public class MomentService {
     }
 
     @Transactional
-    public MomentResponseDto updateMomentByProjects(Long momentId, List<Long> projectIds) {
+    public MomentResponseDto addNewProjectToMoment(Long momentId, List<Long> projectIds) {
         log.info("Updating moment with ID = {}", momentId);
 
         List<Project> projects = momentValidator.validateProjectsByIdAndStatus(projectIds);
@@ -54,17 +54,23 @@ public class MomentService {
     }
 
     @Transactional
-    public MomentResponseDto updateMomentByUser(Long momentId, Long userId) {
-        log.info("Updating moment with ID = {} and by user ID = {}", momentId, userId);
+    public MomentResponseDto addNewParticipantToMoment(Long momentId, Long userId, Long projectId) {
+        log.info("Adding new participant with user ID = {} to moment with ID = {} for project ID = {}",
+                userId, momentId, projectId);
 
-        List<Project> projects = momentValidator.validateProjectsByUserIdAndStatus(userId);
+        Project project = momentValidator.validateExistingProject(projectId);
+        momentValidator.validateProjectStatusAndUserMembership(userId, project);
         Moment updateMoment = momentValidator.validateExistingMoment(momentId);
-        updateMoment.getProjects().addAll(projects);
+
+        updateMoment.getUserIds().add(userId);
+        updateMoment.getProjects().add(project);
         updateMoment = momentRepository.save(updateMoment);
 
-        log.info("Moment with ID is updated {}", momentId);
+        log.info("Successfully updated moment with ID = {} by adding user ID = {} and linking project ID = {}",
+                momentId, userId, projectId);
         return momentMapper.toDto(updateMoment);
     }
+
 
     @Transactional
     public MomentResponseDto updateMoment(Long momentId, MomentUpdateDto momentUpdateDto) {

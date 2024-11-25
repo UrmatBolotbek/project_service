@@ -47,6 +47,7 @@ public class MomentControllerTest {
     private MomentController momentController;
 
     private MomentResponseDto momentResponseDto;
+    private List<MomentResponseDto> momentResponseDtos;
     private MomentResponseDto updatedResponseDto;
     private MomentUpdateDto momentUpdateDto;
 
@@ -63,6 +64,8 @@ public class MomentControllerTest {
                 .date(MOMENT_DATE)
                 .imageId(IMAGE_ID)
                 .build();
+
+        momentResponseDtos = List.of(momentResponseDto);
 
         updatedResponseDto = MomentResponseDto.builder()
                 .id(MOMENT_ID)
@@ -99,8 +102,8 @@ public class MomentControllerTest {
     }
 
     @Test
-    public void testUpdateMomentByProjects() throws Exception {
-        when(momentService.updateMomentByProjects(eq(MOMENT_ID), any())).thenReturn(momentResponseDto);
+    public void testAddNewProjectToMoment() throws Exception {
+        when(momentService.addNewProjectToMoment(eq(MOMENT_ID), any())).thenReturn(momentResponseDto);
 
         mockMvc.perform(put("/api/v1/moments/" + MOMENT_ID + "/projects")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -109,21 +112,23 @@ public class MomentControllerTest {
                 .andExpect(jsonPath("$.id").value(MOMENT_ID))
                 .andExpect(jsonPath("$.name").value(MOMENT_NAME));
 
-        verify(momentService).updateMomentByProjects(eq(MOMENT_ID), any());
+        verify(momentService).addNewProjectToMoment(eq(MOMENT_ID), any());
     }
 
     @Test
-    public void testUpdateMomentByUser() throws Exception {
-        when(momentService.updateMomentByUser(eq(MOMENT_ID), eq(USER_ID))).thenReturn(momentResponseDto);
+    public void testAddNewParticipantToMoment() throws Exception {
+        when(momentService.addNewParticipantToMoment(eq(MOMENT_ID), eq(USER_ID), eq(PROJECT_ID)))
+                .thenReturn(momentResponseDto);
 
-        mockMvc.perform(put("/api/v1/moments/" + MOMENT_ID + "/users/" + USER_ID)
+        mockMvc.perform(put("/api/v1/moments/{momentId}/user/{userId}/project/{projectId}", MOMENT_ID, USER_ID, PROJECT_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(MOMENT_ID))
                 .andExpect(jsonPath("$.name").value(MOMENT_NAME));
 
-        verify(momentService).updateMomentByUser(eq(MOMENT_ID), eq(USER_ID));
+        verify(momentService).addNewParticipantToMoment(eq(MOMENT_ID), eq(USER_ID), eq(PROJECT_ID));
     }
+
 
     @Test
     public void testUpdateMoment() throws Exception {
@@ -148,9 +153,10 @@ public class MomentControllerTest {
     @Test
     public void testGetAllProjectMomentsByFilters() throws Exception {
         when(momentService.getAllProjectMomentsByFilters(eq(PROJECT_ID), any()))
-                .thenReturn(Collections.singletonList(momentResponseDto));
+                .thenReturn(momentResponseDtos);
 
-        mockMvc.perform(get("/api/v1/moments/" + PROJECT_ID + "/filters")
+        mockMvc.perform(get("/api/v1/moments")
+                        .param("projectId", String.valueOf(PROJECT_ID))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(MOMENT_ID))

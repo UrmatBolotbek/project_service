@@ -8,6 +8,7 @@ import faang.school.projectservice.model.Team;
 import faang.school.projectservice.model.TeamMember;
 import faang.school.projectservice.repository.MomentRepository;
 import faang.school.projectservice.repository.ProjectRepository;
+import faang.school.projectservice.jpa.ProjectJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class MomentValidatorTest {
 
     @Mock
     private ProjectRepository projectRepository;
+
+    @Mock
+    private ProjectJpaRepository projectJpaRepository;
 
     @Mock
     private MomentRepository momentRepository;
@@ -82,6 +86,27 @@ class MomentValidatorTest {
     }
 
     @Test
+    @DisplayName("Validation of an existing project - success")
+    void validateExistingProject_ValidProject_Success() {
+        Mockito.when(projectJpaRepository.findById(VALID_PROJECT_ID)).thenReturn(Optional.of(validProject));
+
+        Project result = momentValidator.validateExistingProject(VALID_PROJECT_ID);
+
+        assertEquals(validProject, result);
+    }
+
+    @Test
+    @DisplayName("Validation of an existing project - failure")
+    void validateExistingProject_InvalidProject_ThrowsException() {
+        Mockito.when(projectJpaRepository.findById(INVALID_USER_ID)).thenReturn(Optional.empty());
+
+        DataValidationException exception = assertThrows(DataValidationException.class, () ->
+                momentValidator.validateExistingProject(INVALID_USER_ID));
+
+        assertEquals("Project with ID 999 not found", exception.getMessage());
+    }
+
+    @Test
     @DisplayName("Validation of projects by IDs and status - success")
     void validateProjectsByIdAndStatus_ValidProjects_Success() {
         Mockito.when(projectRepository.findAllByIds(List.of(VALID_PROJECT_ID))).thenReturn(List.of(validProject));
@@ -114,8 +139,8 @@ class MomentValidatorTest {
     }
 
     @Test
-    @DisplayName("Validation of projects by user ID and status - success")
-    void validateProjectsByUserIdAndStatus_ValidProjects_Success() {
+    @DisplayName("Validation of project status and user membership - valid user")
+    void validateProjectStatusAndUserMembership_ValidUser_Success() {
         TeamMember teamMember = new TeamMember();
         teamMember.setUserId(VALID_USER_ID);
 
@@ -124,21 +149,26 @@ class MomentValidatorTest {
 
         validProject.setTeams(List.of(team));
 
-        Mockito.when(projectRepository.findAll()).thenReturn(List.of(validProject));
-
-        List<Project> result = momentValidator.validateProjectsByUserIdAndStatus(VALID_USER_ID);
-
-        assertEquals(List.of(validProject), result);
+        momentValidator.validateProjectStatusAndUserMembership(VALID_USER_ID, validProject);
     }
 
     @Test
-    @DisplayName("Validation of projects by user ID and status - no projects")
-    void validateProjectsByUserIdAndStatus_NoProjects_ThrowsException() {
-        Mockito.when(projectRepository.findAll()).thenReturn(Collections.emptyList());
+    @DisplayName("Validation of project status and user membership - cancelled project")
+    void validateProjectStatusAndUserMembership_CancelledProject_ThrowsException() {
+        DataValidationException exception = assertThrows(DataValidationException.class, () ->
+                momentValidator.validateProjectStatusAndUserMembership(VALID_USER_ID, cancelledProject));
+
+        assertEquals("Project with ID 2 is in status CANCELLED. Operation is not allowed.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Validation of project status and user membership - user not a member")
+    void validateProjectStatusAndUserMembership_UserNotMember_ThrowsException() {
+        validProject.setTeams(Collections.emptyList());
 
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
-                momentValidator.validateProjectsByUserIdAndStatus(INVALID_USER_ID));
+                momentValidator.validateProjectStatusAndUserMembership(INVALID_USER_ID, validProject));
 
-        assertEquals("No active projects were found for the user with ID 999", exception.getMessage());
+        assertEquals("User with ID 999 is not a member of the project with ID 1", exception.getMessage());
     }
 }

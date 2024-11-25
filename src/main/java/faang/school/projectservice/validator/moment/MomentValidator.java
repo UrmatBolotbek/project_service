@@ -1,6 +1,7 @@
 package faang.school.projectservice.validator.moment;
 
 import faang.school.projectservice.exception.DataValidationException;
+import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.model.Moment;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
@@ -17,11 +18,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MomentValidator {
     private final ProjectRepository projectRepository;
+    private final ProjectJpaRepository projectJpaRepository;
     private final MomentRepository momentRepository;
 
     public Moment validateExistingMoment(long momentId) {
         return momentRepository.findById(momentId).orElseThrow(() ->
                 new DataValidationException("Moment with ID %s not found", momentId));
+    }
+
+    public Project validateExistingProject(long projectId) {
+        return projectJpaRepository.findById(projectId).orElseThrow(() ->
+                new DataValidationException("Project with ID %s not found", projectId));
     }
 
     public List<Project> validateProjectsByIdAndStatus(List<Long> projectIds) {
@@ -44,20 +51,28 @@ public class MomentValidator {
         return projects;
     }
 
-    public List<Project> validateProjectsByUserIdAndStatus(long userId) {
-        List<Project> projects = projectRepository.findAll().stream()
-                .filter(project -> !ProjectStatus.CANCELLED.equals(project.getStatus()))
-                .filter(project -> project.getTeams().stream()
-                        .anyMatch(team -> team.getTeamMembers().stream()
-                                .anyMatch(teamMember -> teamMember.getUserId() == userId)))
-                .toList();
-
-        if (projects.isEmpty()) {
-            log.warn("No active projects found for user with ID {}", userId);
-            throw new DataValidationException("No active projects were found for the user with ID %s", userId);
+    public void validateProjectStatusAndUserMembership(long userId, Project project) {
+        if (validateProjectStatus(project)) {
+            log.warn("Project with ID {} is in status CANCELLED. Operation is not allowed.", project.getId());
+            throw new DataValidationException(String.format("Project with ID %d is in status CANCELLED. Operation is not allowed.", project.getId()));
         }
 
-        log.info("Validated projects for user with ID {}: {}", userId, projects.stream().map(Project::getId).toList());
-        return projects;
+        if (!validateMembership(userId, project)) {
+            log.warn("User with ID {} is not a member of the project with ID {}", userId, project.getId());
+            throw new DataValidationException(String.format("User with ID %d is not a member of the project with ID %d", userId, project.getId()));
+        }
+
+        log.info("User with ID {} is a member of the active project with ID {}", userId, project.getId());
+    }
+
+    private boolean validateProjectStatus(Project project) {
+        return ProjectStatus.CANCELLED.equals(project.getStatus());
+    }
+
+    private boolean validateMembership(long userId, Project project) {
+        return project.getTeams().stream()
+                .anyMatch(team -> team.getTeamMembers().stream()
+                        .anyMatch(teamMember -> teamMember.getUserId() == userId)
+                );
     }
 }

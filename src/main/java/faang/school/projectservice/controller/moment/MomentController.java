@@ -31,19 +31,20 @@ public class MomentController {
 
     @PutMapping("/{momentId}/projects")
     @ResponseStatus(HttpStatus.OK)
-    public MomentResponseDto updateMomentByProjects(
+    public MomentResponseDto addNewProjectToMoment(
             @PathVariable @NotNull(message = "Moment ID should not be null") Long momentId,
             @RequestBody @NotEmpty(message = "The list of project IDs should not be empty")
             List<@NotNull(message = "Each project ID should not be null") Long> projectIds) {
-        return momentService.updateMomentByProjects(momentId, projectIds);
+        return momentService.addNewProjectToMoment(momentId, projectIds);
     }
 
-    @PutMapping("/{momentId}/users/{userId}")
+    @PutMapping("/{momentId}/user/{userId}/project/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public MomentResponseDto updateMomentByUser(
+    public MomentResponseDto addNewParticipantToMoment(
             @PathVariable @NotNull(message = "Moment ID should not be null") Long momentId,
-            @PathVariable @NotNull(message = "User ID should not be null") Long userId) {
-        return momentService.updateMomentByUser(momentId, userId);
+            @PathVariable @NotNull(message = "User ID should not be null") Long userId,
+            @PathVariable @NotNull(message = "User ID should not be null") Long projectId) {
+        return momentService.addNewParticipantToMoment(momentId, userId, projectId);
     }
 
     @PutMapping("/{momentId}")
@@ -54,10 +55,10 @@ public class MomentController {
         return momentService.updateMoment(momentId, momentUpdateDto);
     }
 
-    @GetMapping("/{projectId}/filters")
+    @GetMapping(params = "projectId")
     @ResponseStatus(HttpStatus.OK)
     public List<MomentResponseDto> getAllProjectMomentsByFilters(
-            @PathVariable @NotNull(message = "Project ID should not be null") Long projectId,
+            @RequestParam @NotNull(message = "Project ID should not be null") Long projectId,
             @ModelAttribute MomentRequestFilterDto filter) {
         return momentService.getAllProjectMomentsByFilters(projectId, filter);
     }
