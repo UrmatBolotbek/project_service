@@ -51,7 +51,8 @@ public class TaskService {
         Project project = projectRepository.getProjectById(oldTask.getProject().getId());
         taskValidator.validateAuthorInThisProject(project, authorId);
         taskValidator.validateTaskWithStatusCancelled(oldTask);
-        Task newTask = toNewTask(updateDto, oldTask);
+        Task newTask = getUpdateTask(updateDto, project);
+        newTask.setId(oldTask.getId());
         taskRepository.save(newTask);
         log.info("Updated task: {}", newTask.getId());
         return taskMapper.toDto(newTask);
@@ -90,44 +91,36 @@ public class TaskService {
         return taskMapper.toDto(task);
     }
 
-    private Task toNewTask(TaskUpdateRequestDto updateDto, Task oldTask) {
-        if (updateDto.getName() != null) {
-            oldTask.setName(updateDto.getName());
-        }
-        if (updateDto.getDescription() != null) {
-            oldTask.setDescription(updateDto.getDescription());
-        }
-        if (updateDto.getStatus() != null) {
-            oldTask.setStatus(updateDto.getStatus());
-        }
-        if (updateDto.getMinutesTracked() != null) {
-            oldTask.setMinutesTracked(updateDto.getMinutesTracked());
-        }
+    private Task getUpdateTask(TaskUpdateRequestDto updateDto, Project project) {
+        Task newTask = taskMapper.toEntity(updateDto);
+        newTask.setProject(project);
         if (updateDto.getPerformerUserId() != null) {
             long userId = updateDto.getPerformerUserId();
             taskValidator.validateUser(userId);
-            oldTask.setPerformerUserId(userId);
+            taskValidator.validateAuthorInThisProject(project, userId);
+            newTask.setPerformerUserId(userId);
         }
         if (updateDto.getReporterUserId() != null) {
             long userId = updateDto.getReporterUserId();
             taskValidator.validateUser(userId);
-            oldTask.setReporterUserId(userId);
+            taskValidator.validateAuthorInThisProject(project, userId);
+            newTask.setReporterUserId(userId);
         }
         if (updateDto.getLinkedTasksIds() != null) {
             List<Task> linkedTasks = updateDto.getLinkedTasksIds()
                     .stream().map(taskValidator::validateTask)
                     .toList();
-            oldTask.setLinkedTasks(linkedTasks);
+            newTask.setLinkedTasks(linkedTasks);
         }
         if (updateDto.getParentTaskId() != null) {
             Task task = taskValidator.validateTask(updateDto.getParentTaskId());
-            oldTask.setParentTask(task);
+            newTask.setParentTask(task);
         }
         if (updateDto.getStageId() != null) {
             Stage stage = stageRepository.getById(updateDto.getStageId());
-            oldTask.setStage(stage);
+            newTask.setStage(stage);
         }
-        return oldTask;
+        return newTask;
     }
 
 }

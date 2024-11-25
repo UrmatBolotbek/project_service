@@ -32,10 +32,8 @@ public class TaskValidator {
     }
 
     public void validateAuthorInThisProject(Project project, Long authorId) {
-        boolean result = project.getTeams().stream().map(team -> team.getTeamMembers().stream()
-                        .anyMatch(teamMember -> Objects.equals(teamMember.getId(), authorId)))
-                .findAny().isPresent();
-
+        boolean result = project.getTeams().stream().flatMap(team -> team.getTeamMembers().stream())
+                .anyMatch(teamMember -> Objects.equals(teamMember.getId(), authorId));
         if (!result) {
             log.warn("User with id {} not found in project with id {}", authorId, project.getId());
             throw new EntityNotFoundException("User with id " + authorId
@@ -59,6 +57,5 @@ public class TaskValidator {
             throw new DataValidationException("Task with id " + task.getId() + " has been cancelled");
         }
     }
-
 
 }

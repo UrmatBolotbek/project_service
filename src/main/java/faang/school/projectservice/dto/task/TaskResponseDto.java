@@ -1,10 +1,17 @@
 package faang.school.projectservice.dto.task;
 
-import faang.school.projectservice.model.Project;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class TaskResponseDto {
 
     private Long id;
@@ -14,7 +21,8 @@ public class TaskResponseDto {
     private Long performerUserId;
     private Long reporterUserId;
     private LocalDateTime createdAt;
-    private Project project;
+    private Long parentTaskId;
+    private Long projectId;
     private List<Long> linkedTasksIds;
     private Long stageId;
 

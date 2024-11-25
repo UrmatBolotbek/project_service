@@ -48,7 +48,7 @@ class StageMapperGeneralTest {
         StageRolesMapperImpl rolesMapper = new StageRolesMapperImpl();
         TaskMapperImpl taskMapper = new TaskMapperImpl();
 
-        stageMapperGeneral = new StageMapperGeneralImpl(projectMapper, rolesMapper, taskMapper, executorMapper);
+        stageMapperGeneral = new StageMapperGeneralImpl(projectMapper, rolesMapper, executorMapper);
 
         //Initializing Project
         Project projectInProgress = new Project();

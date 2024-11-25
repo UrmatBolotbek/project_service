@@ -1,6 +1,7 @@
 package faang.school.projectservice.dto.task;
 
 import faang.school.projectservice.model.TaskStatus;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,9 +21,11 @@ public class TaskUpdateRequestDto {
     private Long id;
 
     @Size(min = 1, max = 255, message = "The task name should be between 1 and 255 characters")
+    @NotBlank
     private String name;
 
     @Size(min = 1, max = 4096, message = "The description of the task should be between 1 and 4096 characters long")
+    @NotBlank
     private String description;
 
     @StatusSubset(anyOf = {TaskStatus.TODO,
@@ -33,6 +36,7 @@ public class TaskUpdateRequestDto {
             TaskStatus.TODO,
             TaskStatus.REVIEW,
     })
+    @NotNull
     private TaskStatus status;
 
     private Long performerUserId;

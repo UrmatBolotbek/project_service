@@ -12,17 +12,20 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TaskMapper {
 
     @Mapping(source = "project.id", target = "projectId")
     @Mapping(source = "linkedTasks", target = "linkedTasksIds", qualifiedByName = "toLinkedIds")
-    @Mapping(source = "parentTask", target = "parentTask", qualifiedByName = "toParentTaskId")
-    @Mapping(source = "stage", target = "stageId", qualifiedByName = "toStageId")
+    @Mapping(source = "parentTask.id", target = "parentTaskId")
+    @Mapping(source = "stage.stageId", target = "stageId")
     TaskResponseDto toDto(Task task);
 
     Task toEntity(TaskRequestDto requestDto);
+
+    @Mapping(target = "performerUserId", source = "performerUserId", ignore = true)
+    @Mapping(target = "reporterUserId", source = "reporterUserId", ignore = true)
+    Task toEntity(TaskUpdateRequestDto requestDto);
 
     Task toNewTask(Task task);
 
@@ -31,27 +34,11 @@ public interface TaskMapper {
     List<Task> toEntity(List<TaskRequestDto> taskDtos);
 
     @Named("toLinkedIds")
-    private List<Long> toLinkedTasksIds(List<Task> linkedTasks) {
+    default List<Long> toLinkedTasksIds(List<Task> linkedTasks) {
         if (linkedTasks == null || linkedTasks.isEmpty()) {
             return null;
         }
         return linkedTasks.stream().map(Task::getId).toList();
-    }
-
-    @Named("toParentTaskId")
-    private Long toParentTaskId (Task parentTask) {
-        if (parentTask == null) {
-            return null;
-        }
-        return parentTask.getId();
-    }
-
-    @Named("toStageId")
-    private Long toStageId (Task stage) {
-        if (stage == null) {
-            return null;
-        }
-        return stage.getId();
     }
 
 }

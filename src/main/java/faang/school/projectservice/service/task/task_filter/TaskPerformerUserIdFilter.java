@@ -1,8 +1,7 @@
-package faang.school.projectservice.service.internship.internship_filter;
+package faang.school.projectservice.service.task.task_filter;
 
 import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.model.Task;
-import faang.school.projectservice.service.task.task_filter.TaskFilter;
 
 import java.util.List;
 import java.util.Objects;
