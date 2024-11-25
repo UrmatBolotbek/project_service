@@ -49,7 +49,7 @@ public class VacancyController {
         vacancyService.delete(vacancyId);
     }
 
-    @GetMapping("/filter")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<VacancyResponseDto> getVacancies(@Valid @ModelAttribute VacancyFilterDto filter) {
         return vacancyService.getVacancies(filter);

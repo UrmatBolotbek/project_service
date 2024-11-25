@@ -27,7 +27,7 @@ public class VacancyValidator {
     public Vacancy validateVacancyFromBd(Long id) {
         log.info("Validating vacancy with ID {}", id);
         return vacancyRepository.findById(id).orElseThrow(() -> {
-            log.error("Vacancy with ID {} not found in the database", id);
+            log.warn("Vacancy with ID {} not found in the database", id);
             return new EntityNotFoundException("Vacancy with ID %d not found".formatted(id));
         });
     }
@@ -35,7 +35,7 @@ public class VacancyValidator {
     public TeamMember validateCuratorFromBd(Long id) {
         log.info("Validating curator with ID {}", id);
         return teamMemberRepository.findById(id).orElseThrow(() -> {
-            log.error("Curator with ID {} not found in the database", id);
+            log.warn("Curator with ID {} not found in the database", id);
             return new EntityNotFoundException("Curator with ID %d not found".formatted(id));
         });
     }
@@ -43,7 +43,7 @@ public class VacancyValidator {
     public void validateCuratorRole(TeamMember curator) {
         log.info("Validating roles for curator with ID {}", curator.getId());
         if (!(curator.getRoles().contains(TeamRole.MANAGER) || curator.getRoles().contains(TeamRole.OWNER))) {
-            log.error("Curator with ID {} lacks the required roles", curator.getId());
+            log.warn("Curator with ID {} lacks the required roles", curator.getId());
             throw new InsufficientPermissionsException(
                     "Curator with ID %d does not have sufficient permissions to manage vacancies.", curator.getId());
         }
@@ -53,7 +53,7 @@ public class VacancyValidator {
     public void validateProject(long projectId) {
         log.info("Validating project with ID {}", projectId);
         if (!projectRepository.existsById(projectId)) {
-            log.error("Project with ID {} not found in the database", projectId);
+            log.warn("Project with ID {} not found in the database", projectId);
             throw new EntityNotFoundException("Project with ID %d not found".formatted(projectId));
         }
         log.info("Project with ID {} exists in the database", projectId);
@@ -69,7 +69,7 @@ public class VacancyValidator {
                         || candidate.getRoles().contains(TeamRole.ANALYST));
 
         if (!allQualified) {
-            log.error("Final selection failed: Not all candidates have the required roles");
+            log.warn("Final selection failed: Not all candidates have the required roles");
             throw new InvalidCandidateSelectionException(
                     "Final selection failed: Not all candidates have the required roles to close the vacancy.");
         }
