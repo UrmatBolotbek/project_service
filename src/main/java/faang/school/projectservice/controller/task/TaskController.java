@@ -1,16 +1,24 @@
 package faang.school.projectservice.controller.task;
 
 import faang.school.projectservice.config.context.UserContext;
+import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
+import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
 import faang.school.projectservice.service.task.TaskService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +37,25 @@ public class TaskController {
     @PutMapping
     public TaskResponseDto updateTask(@RequestBody @Valid TaskUpdateRequestDto taskUpdateRequestDto) {
         long userId = userContext.getUserId();
-        return taskService.createTask(taskUpdateRequestDto, userId);
+        return taskService.updateTask(taskUpdateRequestDto, userId);
+    }
+
+    @GetMapping
+    public List<TaskResponseDto> getTasksByFilters(@ModelAttribute TaskFilterDto taskFilterDto, @PathVariable Long projectId) {
+        long userId = userContext.getUserId();
+        return taskService.getTasksByFilters(taskFilterDto, projectId, userId);
+    }
+
+    @GetMapping
+    public List<TaskResponseDto> getTasks(@PathVariable @NotNull Long projectId) {
+        long userId = userContext.getUserId();
+        return taskService.getTasks(projectId, userId);
+    }
+
+    @GetMapping
+    public TaskResponseDto getTask(@PathVariable @NotNull Long taskId) {
+        long userId = userContext.getUserId();
+        return taskService.getTask(taskId, userId);
     }
 
 }

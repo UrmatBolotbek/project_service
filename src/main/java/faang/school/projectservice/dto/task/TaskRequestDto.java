@@ -24,6 +24,7 @@ public class TaskRequestDto {
     private String description;
 
     @NotNull(message = "Task status should be not null")
+    @StatusSubset(anyOf = {TaskStatus.TODO, TaskStatus.TESTING})
     private TaskStatus status;
 
     @NotNull(message = "Task project should be not null")

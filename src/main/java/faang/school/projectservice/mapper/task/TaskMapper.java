@@ -24,7 +24,7 @@ public interface TaskMapper {
 
     Task toEntity(TaskRequestDto requestDto);
 
-    Task toEntity(TaskUpdateRequestDto requestDto);
+    Task toNewTask(Task task);
 
     List<TaskResponseDto> toDto(List<Task> tasks);
 
