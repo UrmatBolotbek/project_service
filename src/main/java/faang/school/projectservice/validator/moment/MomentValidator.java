@@ -28,13 +28,13 @@ public class MomentValidator {
         List<Project> projects = projectRepository.findAllByIds(projectIds);
 
         if (projects.isEmpty()) {
-            log.error("No projects found for the provided IDs: {}", projectIds);
+            log.warn("No projects found for the provided IDs: {}", projectIds);
             throw new DataValidationException("No projects were found for the given IDs");
         }
 
         for (Project project : projects) {
             if (ProjectStatus.CANCELLED.equals(project.getStatus())) {
-                log.error("Validation failed: Project with ID {} is in 'CANCELLED' status.", project.getId());
+                log.warn("Validation failed: Project with ID {} is in 'CANCELLED' status.", project.getId());
                 throw new DataValidationException("The project with ID %s is in 'CANCELLED' status." +
                         " Operation is not allowed.", project.getId());
             }
@@ -53,7 +53,7 @@ public class MomentValidator {
                 .toList();
 
         if (projects.isEmpty()) {
-            log.error("No active projects found for user with ID {}", userId);
+            log.warn("No active projects found for user with ID {}", userId);
             throw new DataValidationException("No active projects were found for the user with ID %s", userId);
         }
 

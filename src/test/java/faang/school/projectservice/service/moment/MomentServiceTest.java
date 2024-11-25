@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -134,15 +135,20 @@ class MomentServiceTest {
 
     @Test
     void updateMomentByUser_ShouldReturnUpdatedMomentResponse() {
+        moment = mock(Moment.class);
+
         when(momentValidator.validateProjectsByUserIdAndStatus(USER_ID)).thenReturn(List.of(project));
         when(momentValidator.validateExistingMoment(MOMENT_ID)).thenReturn(moment);
+        when(moment.getProjects()).thenReturn(new ArrayList<>());
         when(momentRepository.save(moment)).thenReturn(moment);
         when(momentMapper.toDto(moment)).thenReturn(momentResponseDto);
 
         MomentResponseDto result = momentService.updateMomentByUser(MOMENT_ID, USER_ID);
 
         assertEquals(momentResponseDto, result);
+
         verify(momentRepository).save(moment);
+        verify(momentMapper).toDto(moment);
     }
 
     @Test

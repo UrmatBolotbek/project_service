@@ -1,7 +1,6 @@
 package faang.school.projectservice.dto.moment;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MomentRequestDto {
-    @NotEmpty(message = "The moment name should not be empty")
     @NotBlank(message = "The moment name should not be blank")
     @Size(min = 1, max = 255, message = "The moment name should be between 1 and 255 characters")
     private String name;

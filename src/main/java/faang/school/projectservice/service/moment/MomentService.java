@@ -59,10 +59,11 @@ public class MomentService {
 
         List<Project> projects = momentValidator.validateProjectsByUserIdAndStatus(userId);
         Moment updateMoment = momentValidator.validateExistingMoment(momentId);
-        Moment saveMoment = saveMoment(updateMoment, projects);
+        updateMoment.getProjects().addAll(projects);
+        updateMoment = momentRepository.save(updateMoment);
 
-        log.info("Moment with ID is updated {}", saveMoment.getId());
-        return momentMapper.toDto(saveMoment);
+        log.info("Moment with ID is updated {}", momentId);
+        return momentMapper.toDto(updateMoment);
     }
 
     @Transactional
@@ -97,7 +98,6 @@ public class MomentService {
     private Moment saveMoment(Moment moment, List<Project> projects) {
         moment.setProjects(projects);
         moment.setUserIds(getUserIdsByProjects(projects));
-        projects.forEach(project -> project.getMoments().add(moment));
         return momentRepository.save(moment);
     }
 
