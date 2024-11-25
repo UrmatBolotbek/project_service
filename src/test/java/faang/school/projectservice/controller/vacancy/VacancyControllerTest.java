@@ -114,7 +114,7 @@ public class VacancyControllerTest {
     public void testGetVacancies() throws Exception {
         when(vacancyService.getVacancies(any())).thenReturn(vacancyResponseList);
 
-        mockMvc.perform(get("/api/v1/vacancies/filter")
+        mockMvc.perform(get("/api/v1/vacancies")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(VACANCY_ID))
