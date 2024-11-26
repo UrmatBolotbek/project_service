@@ -11,8 +11,8 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface InternshipMapper {
 
     @Mapping(target = "project", ignore = true)

@@ -7,8 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "Spring", unmappedSourcePolicy = ReportingPolicy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface StageInvitationMapper {
 
     StageInvitationResponseDto toDto(StageInvitation stageInvitation);
