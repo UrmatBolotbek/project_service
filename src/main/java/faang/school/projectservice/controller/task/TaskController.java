@@ -40,13 +40,13 @@ public class TaskController {
         return taskService.updateTask(taskUpdateRequestDto, userId);
     }
 
-    @GetMapping("/{projectId}/project/filter")
+    @GetMapping("/project/{projectId}/filter")
     public List<TaskResponseDto> getTasksByFilters(@ModelAttribute TaskFilterDto taskFilterDto, @PathVariable Long projectId) {
         long userId = userContext.getUserId();
         return taskService.getTasksByFilters(taskFilterDto, projectId, userId);
     }
 
-    @GetMapping("/{projectId}/project")
+    @GetMapping("/project/{projectId}")
     public List<TaskResponseDto> getTasks(@PathVariable @NotNull Long projectId) {
         long userId = userContext.getUserId();
         return taskService.getTasks(projectId, userId);
