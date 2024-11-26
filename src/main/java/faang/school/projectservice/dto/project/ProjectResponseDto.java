@@ -1,6 +1,5 @@
 package faang.school.projectservice.dto.project;
 
-import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
 import faang.school.projectservice.model.ProjectVisibility;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,7 @@ public class ProjectResponseDto {
     private BigInteger storageSize;
     private BigInteger maxStorageSize;
     private Long ownerId;
-    private Project parentProject;
+    private Long parentProjectId;
     private List<Long> children;
     private List<Long> tasks;
     private List<Long> resources;
@@ -33,7 +32,7 @@ public class ProjectResponseDto {
     private ProjectVisibility visibility;
     private String coverImageId;
     private List<Long> teams;
-    private Long schedule;
+    private Long scheduleId;
     private List<Long> stages;
     private List<Long> vacancies;
     private List<Long> moments;

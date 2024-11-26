@@ -3,39 +3,30 @@ package faang.school.projectservice.mapper.project;
 import faang.school.projectservice.dto.project.ProjectRequestDto;
 import faang.school.projectservice.dto.project.ProjectResponseDto;
 import faang.school.projectservice.dto.project.ProjectUpdateDto;
-import faang.school.projectservice.model.Meet;
-import faang.school.projectservice.model.Moment;
-import faang.school.projectservice.model.Project;
-import faang.school.projectservice.model.ProjectStatus;
-import faang.school.projectservice.model.Resource;
-import faang.school.projectservice.model.Task;
-import faang.school.projectservice.model.Team;
-import faang.school.projectservice.model.Vacancy;
+import faang.school.projectservice.model.*;
 import faang.school.projectservice.model.stage.Stage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface ProjectServiceMapper {
-    @Mappings({
-            @Mapping(target = "status", source = "status"),
-            @Mapping(target = "visibility", source = "visibility"),
-            @Mapping(target = "children", source = "children"),
-            @Mapping(target = "tasks", source = "tasks"),
-            @Mapping(target = "resources", source = "resources"),
-            @Mapping(target = "teams", source = "teams"),
-            @Mapping(target = "stages", source = "stages"),
-            @Mapping(target = "vacancies", source = "vacancies"),
-            @Mapping(target = "moments", source = "moments"),
-            @Mapping(target = "meets", source = "meets"),
-            @Mapping(target = "schedule", source = "schedule.id")
-    })
+    @Mapping(target = "scheduleId", source = "schedule.id")
+    @Mapping(target = "parentProjectId", source = "parentProject.id")
+    @Mapping(target = "children", source = "children", qualifiedByName = "mapProjectsToIds")
+    @Mapping(target = "tasks", source = "tasks", qualifiedByName = "mapTasksToIds")
+    @Mapping(target = "resources", source = "resources", qualifiedByName = "mapResourcesToIds")
+    @Mapping(target = "teams", source = "teams", qualifiedByName = "mapTeamsToIds")
+    @Mapping(target = "stages", source = "stages", qualifiedByName = "mapStagesToIds")
+    @Mapping(target = "vacancies", source = "vacancies", qualifiedByName = "mapVacanciesToIds")
+    @Mapping(target = "moments", source = "moments", qualifiedByName = "mapMomentsToIds")
+    @Mapping(target = "meets", source = "meets", qualifiedByName = "mapMeetsToIds")
     ProjectResponseDto toDto(Project project);
 
     @Mapping(target = "status", expression = "java(faang.school.projectservice.model.ProjectStatus.CREATED)")
@@ -43,51 +34,59 @@ public interface ProjectServiceMapper {
 
     void updateFromDto(ProjectUpdateDto projectUpdateDto, @MappingTarget Project project);
 
-    default List<Long> mapChildren(List<Project> children) {
-        return children.stream()
+    @Named("mapProjectsToIds")
+    default List<Long> mapProjectsToIds(List<Project> projects) {
+        return projects.stream()
                 .map(Project::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapTasks(List<Task> tasks) {
+    @Named("mapTasksToIds")
+    default List<Long> mapTasksToIds(List<Task> tasks) {
         return tasks.stream()
                 .map(Task::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapResources(List<Resource> resources) {
+    @Named("mapResourcesToIds")
+    default List<Long> mapResourcesToIds(List<Resource> resources) {
         return resources.stream()
                 .map(Resource::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapTeams(List<Team> teams) {
+    @Named("mapTeamsToIds")
+    default List<Long> mapTeamsToIds(List<Team> teams) {
         return teams.stream()
                 .map(Team::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapStages(List<Stage> stages) {
+    @Named("mapStagesToIds")
+    default List<Long> mapStagesToIds(List<Stage> stages) {
         return stages.stream()
                 .map(Stage::getStageId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapVacancies(List<Vacancy> vacancies) {
+    @Named("mapVacanciesToIds")
+    default List<Long> mapVacanciesToIds(List<Vacancy> vacancies) {
         return vacancies.stream()
                 .map(Vacancy::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapMoments(List<Moment> moments) {
+    @Named("mapMomentsToIds")
+    default List<Long> mapMomentsToIds(List<Moment> moments) {
         return moments.stream()
                 .map(Moment::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    default List<Long> mapMeets(List<Meet> meets) {
+    @Named("mapMeetsToIds")
+    default List<Long> mapMeetsToIds(List<Meet> meets) {
         return meets.stream()
                 .map(Meet::getId)
-                .toList();
+                .collect(Collectors.toList());
     }
 }
