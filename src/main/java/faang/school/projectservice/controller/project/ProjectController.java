@@ -1,6 +1,10 @@
 package faang.school.projectservice.controller.project;
 
 import faang.school.projectservice.service.project.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,29 +15,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/projects")
+@RequestMapping("/api/v1/projects")
+@Tag(name = "Project Controller", description = "Controller for managing projects")
+@ApiResponse(responseCode = "200", description = "Image uploaded successfully.")
+@ApiResponse(responseCode = "400", description = "Invalid request parameters.")
+@ApiResponse(responseCode = "500", description = "Server error.")
 public class ProjectController {
 
     private final ProjectService projectService;
 
+    @Operation(summary = "Upload project cover image", description = "Uploads a cover image for the specified project.")
+
     @PostMapping("/{projectId}/cover")
-    public ResponseEntity<Void> uploadCoverImage(@PathVariable Long projectId,
-                                                 @RequestParam("file")MultipartFile file){
-        try {
-            projectService.uploadCoverImage(projectId, file);
-            log.info("Cover image for project ID '{}' successfully uploaded.", projectId);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            log.error("Validation error: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (IOException e) {
-            log.error("I/O error while processing cover image: {}", e.getMessage());
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<Void> uploadCoverImage(
+            @PathVariable @NotNull(message = "ProjectId can't be null") Long projectId,
+            @RequestParam("file") MultipartFile file) {
+        projectService.uploadCoverImage(projectId, file);
+        return ResponseEntity.ok().build();
     }
 }

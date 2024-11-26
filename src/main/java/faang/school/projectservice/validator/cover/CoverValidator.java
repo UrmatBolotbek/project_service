@@ -13,10 +13,4 @@ public class CoverValidator {
             throw new IllegalArgumentException("File size exceeds the 5MB limit.");
         }
     }
-
-    public void validateProjectIdNotNull(Long projectId) {
-        if (projectId == null) {
-            throw new IllegalArgumentException("Project ID cannot be null.");
-        }
-    }
 }

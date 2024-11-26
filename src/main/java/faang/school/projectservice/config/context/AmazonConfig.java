@@ -30,8 +30,5 @@ public class AmazonConfig {
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, null))
                 .withPathStyleAccessEnabled(true)
                 .build();
-
-
     }
-
 }

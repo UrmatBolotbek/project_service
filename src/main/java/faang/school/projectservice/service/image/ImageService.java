@@ -14,12 +14,17 @@ import java.io.InputStream;
 @Slf4j
 @Service
 public class ImageService {
+
+    private static final int SQUARE_IMAGE_SIZE = 1080;
+    private static final int RECTANGLE_IMAGE_WIDTH = 1080;
+    private static final int RECTANGLE_IMAGE_HEIGHT = 566;
+
     public InputStream processImage(InputStream inputStream, boolean isSquare) throws IOException {
         log.info("Reading and processing image...");
         BufferedImage originalImage = ImageIO.read(inputStream);
 
-        int targetWidth = isSquare ? 1080 : 1080;
-        int targetHeight = isSquare ? 1080 : 566;
+        int targetWidth = isSquare ? SQUARE_IMAGE_SIZE : RECTANGLE_IMAGE_WIDTH;
+        int targetHeight = isSquare ? SQUARE_IMAGE_SIZE : RECTANGLE_IMAGE_HEIGHT;
 
         log.info("Resizing image to width: {}, height: {}", targetWidth, targetHeight);
         BufferedImage resizedImage = resizeImage(originalImage, targetWidth, targetHeight);

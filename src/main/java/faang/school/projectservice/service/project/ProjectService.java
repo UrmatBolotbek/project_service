@@ -1,5 +1,6 @@
 package faang.school.projectservice.service.project;
 
+import faang.school.projectservice.exeption.FileProcessingException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.repository.ProjectRepository;
 import faang.school.projectservice.service.image.ImageService;
@@ -25,26 +26,35 @@ public class ProjectService {
     private final ImageService imageService;
     private final CoverValidator coverValidator;
 
-    public void uploadCoverImage(Long projectId, MultipartFile file) throws IOException {
+    public void uploadCoverImage(Long projectId, MultipartFile file) {
         log.info("Uploading cover image for project with ID: {}", projectId);
 
         coverValidator.validateFileSize(file.getSize());
-        coverValidator.validateProjectIdNotNull(projectId);
+        log.info("Cover image validated successfully for project ID {}", projectId);
 
         Project project = projectRepository.getProjectById(projectId);
-
-        BufferedImage originalImage = ImageIO.read(file.getInputStream());
-        if (originalImage == null) {
-            throw new IllegalArgumentException("Invalid image file format.");
+        if (project == null) {
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not exist.");
         }
-        boolean isSquare = originalImage.getWidth() == originalImage.getHeight();
 
-        InputStream processedImageStream = imageService.processImage(file.getInputStream(), isSquare);
+        try {
 
-        String coverImageId = s3Service.uploadFile("cover_" + projectId, processedImageStream, file.getContentType());
+            BufferedImage originalImage = ImageIO.read(file.getInputStream());
+            if (originalImage == null) {
+                throw new IllegalArgumentException("Invalid image file format.");
+            }
+            boolean isSquare = originalImage.getWidth() == originalImage.getHeight();
 
-        project.setCoverImageId(coverImageId);
-        projectRepository.save(project);
-        log.info("Cover image for project ID '{}' successfully uploaded and saved.", projectId);
+            InputStream processedImageStream = imageService.processImage(file.getInputStream(), isSquare);
+
+            String coverImageId = s3Service.uploadFile("cover_" + projectId, processedImageStream, file.getContentType());
+
+            project.setCoverImageId(coverImageId);
+            projectRepository.save(project);
+
+            log.info("Cover image for project ID '{}' successfully uploaded and saved.", projectId);
+        } catch (IOException e) {
+            throw new FileProcessingException("Failed to process the cover image file for project ID " + projectId, e);
+        }
     }
 }
