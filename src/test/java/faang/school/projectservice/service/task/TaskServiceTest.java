@@ -57,10 +57,10 @@ public class TaskServiceTest {
     private Stage stage;
     private Task task;
     private Project project;
-    private final Long authorId = 25L;
-    private final Long projectId = 13L;
-    private final Long stageId = 14L;
-    private final Long taskId = 33L;
+    private final Long AUTHOR_ID = 25L;
+    private final Long PROJECT_ID = 13L;
+    private final Long STAGE_ID = 14L;
+    private final Long TASK_ID = 33L;
 
     @BeforeEach
     public void setUp() {
@@ -84,21 +84,21 @@ public class TaskServiceTest {
                 .builder()
                 .name("newName")
                 .description("newDescription")
-                .id(taskId)
-                .stageId(stageId)
+                .id(TASK_ID)
+                .stageId(STAGE_ID)
                 .build();
         project = Project.builder()
-                .id(projectId)
+                .id(PROJECT_ID)
                 .build();
         task = Task.builder()
-                .id(taskId)
+                .id(TASK_ID)
                 .project(project)
                 .name("name")
                 .description("description")
                 .build();
         taskResponseDto = TaskResponseDto.builder()
-                .id(taskId)
-                .projectId(projectId)
+                .id(TASK_ID)
+                .projectId(PROJECT_ID)
                 .name("name")
                 .description("description")
                 .build();
@@ -106,20 +106,20 @@ public class TaskServiceTest {
 
     @Test
     public void testCreateTaskSuccess() {
-        when(projectRepository.getProjectById(projectId)).thenReturn(project);
-        taskService.createTask(taskRequestDto, authorId);
+        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
+        taskService.createTask(taskRequestDto, AUTHOR_ID);
         verify(taskRepository).save(taskCaptor.capture());
         Task taskFromCaptor = taskCaptor.getValue();
-        taskFromCaptor.setId(taskId);
+        taskFromCaptor.setId(TASK_ID);
         assertEquals(task, taskFromCaptor);
     }
 
     @Test
     public void testUpdateTaskSuccess() {
-        when(taskValidator.validateTask(taskId)).thenReturn(task);
-        when(stageRepository.getById(stageId)).thenReturn(stage);
-        when(projectRepository.getProjectById(projectId)).thenReturn(project);
-        taskService.updateTask(taskUpdateDto, authorId);
+        when(taskValidator.validateTask(TASK_ID)).thenReturn(task);
+        when(stageRepository.getById(STAGE_ID)).thenReturn(stage);
+        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
+        taskService.updateTask(taskUpdateDto, AUTHOR_ID);
         verify(taskRepository).save(taskCaptor.capture());
         Task taskFromCaptor = taskCaptor.getValue();
         assertEquals(task.getId(), taskFromCaptor.getId());
@@ -130,38 +130,38 @@ public class TaskServiceTest {
 
     @Test
     public void testGetTasksByFiltersSuccess() {
-        when(projectRepository.getProjectById(projectId)).thenReturn(project);
+        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
         List<Task> tasks = Collections.singletonList(task);
-        when(taskRepository.findAllByProjectId(projectId)).thenReturn(tasks);
+        when(taskRepository.findAllByProjectId(PROJECT_ID)).thenReturn(tasks);
 
         when(filters.get(0).isApplicable(new TaskFilterDto())).thenReturn(true);
         when(filters.get(0).apply(any(), any())).thenReturn(List.of(task));
 
         List<TaskResponseDto> realList = taskService
-                .getTasksByFilters(new TaskFilterDto(), projectId, authorId);
+                .getTasksByFilters(new TaskFilterDto(), PROJECT_ID, AUTHOR_ID);
 
-        verify(taskRepository).findAllByProjectId(projectId);
+        verify(taskRepository).findAllByProjectId(PROJECT_ID);
         assertEquals(realList,taskMapper.toDto(tasks));
     }
 
     @Test
     public void testGetTasksSuccess() {
-        when(projectRepository.getProjectById(projectId)).thenReturn(project);
+        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
         List<Task> tasks = Collections.singletonList(task);
-        when(taskRepository.findAllByProjectId(projectId)).thenReturn(tasks);
+        when(taskRepository.findAllByProjectId(PROJECT_ID)).thenReturn(tasks);
 
         List<TaskResponseDto> realList = taskService
-                .getTasks(projectId, authorId);
+                .getTasks(PROJECT_ID, AUTHOR_ID);
 
         assertEquals(realList,taskMapper.toDto(tasks));
     }
 
     @Test
     public void testGetTaskSuccess() {
-        when(taskValidator.validateTask(taskId)).thenReturn(task);
-        when(projectRepository.getProjectById(projectId)).thenReturn(project);
+        when(taskValidator.validateTask(TASK_ID)).thenReturn(task);
+        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
 
-        TaskResponseDto expectedTask = taskService.getTask(taskId, authorId);
+        TaskResponseDto expectedTask = taskService.getTask(TASK_ID, AUTHOR_ID);
         assertEquals(expectedTask,taskResponseDto);
     }
 

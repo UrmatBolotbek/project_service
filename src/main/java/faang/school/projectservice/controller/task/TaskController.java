@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,8 +39,8 @@ public class TaskController {
         return taskService.updateTask(taskUpdateRequestDto, userId);
     }
 
-    @GetMapping("/{projectId}/project/filter")
-    public List<TaskResponseDto> getTasksByFilters(@ModelAttribute TaskFilterDto taskFilterDto, @PathVariable Long projectId) {
+    @PostMapping("/{projectId}/project/filter")
+    public List<TaskResponseDto> getTasksByFilters(@RequestBody TaskFilterDto taskFilterDto, @PathVariable Long projectId) {
         long userId = userContext.getUserId();
         return taskService.getTasksByFilters(taskFilterDto, projectId, userId);
     }

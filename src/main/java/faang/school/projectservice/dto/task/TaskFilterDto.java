@@ -2,9 +2,15 @@ package faang.school.projectservice.dto.task;
 
 import faang.school.projectservice.model.TaskStatus;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TaskFilterDto {
 
     @StatusSubset(anyOf = {TaskStatus.TODO,
