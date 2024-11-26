@@ -121,11 +121,10 @@ public class TaskControllerTest {
                 .thenReturn(Arrays.asList(firstResponseDto, secondResponseDto));
         when(userContext.getUserId()).thenReturn(USER_ID);
 
-        String taskFilterDtoJson = new Gson().toJson(taskFilterDto);
-
-        mockMvc.perform(post("/api/v1/tasks/" + PROJECT_ID + "/project/filter")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(taskFilterDtoJson))
+        mockMvc.perform(get("/api/v1/tasks/" + PROJECT_ID + "/project/filter")
+                        .param("description", taskFilterDto.getDescription())
+                        .param("performerUserId", taskFilterDto.getPerformerUserId().toString())
+                        .param("status", taskFilterDto.getStatus().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(13)))
                 .andExpect(jsonPath("$[0].name", is("name")))
