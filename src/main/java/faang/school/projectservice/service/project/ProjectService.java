@@ -13,6 +13,7 @@ import faang.school.projectservice.validator.project.ProjectValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ProjectService {
     private final ProjectServiceMapper projectMapper;
     private final List<ProjectFilter> projectFilters;
 
+    @Transactional
     public ProjectResponseDto create(ProjectRequestDto projectDto, long ownerId) {
         log.info("Creating a new project with owner with ID {}", ownerId);
 
@@ -40,6 +42,7 @@ public class ProjectService {
         return projectMapper.toDto(project);
     }
 
+    @Transactional
     public ProjectResponseDto update(Long projectId, ProjectUpdateDto projectDto) {
         log.info("Updating project with ID {}", projectId);
 
@@ -52,6 +55,7 @@ public class ProjectService {
         return projectMapper.toDto(project);
     }
 
+    @Transactional
     public List<ProjectResponseDto> getProjects(ProjectFilterDto filterDto, long userId) {
         log.info("Retrieving projects with applied filters");
 
