@@ -1,7 +1,6 @@
-package faang.school.projectservice.controller;
+package faang.school.projectservice.controller.stage_invitation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import faang.school.projectservice.controller.stage_invitation.StageInvitationController;
 import faang.school.projectservice.dto.invitation.StageInvitationFilterDto;
 import faang.school.projectservice.dto.invitation.StageInvitationRequestDto;
 import faang.school.projectservice.dto.invitation.StageInvitationResponseDto;
