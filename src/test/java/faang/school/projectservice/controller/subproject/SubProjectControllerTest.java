@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -55,7 +56,7 @@ public class SubProjectControllerTest {
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
-        when(userContext.getUserId()).thenReturn(1L);
+        lenient().when(userContext.getUserId()).thenReturn(1L);
 
         subProjectResponseDto = SubProjectResponseDto.builder()
                 .id(SUBPROJECT_ID)
