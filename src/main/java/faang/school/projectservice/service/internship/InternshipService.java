@@ -41,7 +41,12 @@ public class InternshipService {
     private final InternshipValidator validator;
 
     public void addInternship(InternshipDto internshipDto) {
+        validator.validateDescriptionAndName(internshipDto);
+        validator.validateQuantityOfMembers(internshipDto);
+        validator.validateTeamRole(internshipDto);
+        validator.validateOfStatusInternship(internshipDto);
         validator.validate3MonthDuration(internshipDto);
+
         Internship internship = getInternship(internshipDto);
         validator.validateMentorHasTheRightRole(internship);
 
@@ -51,6 +56,9 @@ public class InternshipService {
     }
 
     public void updateInternship(InternshipUpdateDto internshipUpdateDto) {
+        validator.validateOfStatusUpdateInternship(internshipUpdateDto);
+        validator.validateTeamRole(internshipUpdateDto);
+
         Internship oldInternship = internshipRepository.findById(internshipUpdateDto.getId())
                 .orElseThrow(EntityNotFoundException::new);
         validator.validateOfStatusOldInternship(oldInternship);
