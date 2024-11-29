@@ -5,7 +5,7 @@ import faang.school.projectservice.config.context.UserContext;
 import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
-import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
+import faang.school.projectservice.dto.task.TaskUpdateDto;
 import faang.school.projectservice.model.TaskStatus;
 import faang.school.projectservice.service.task.TaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@ public class TaskControllerTest {
     private final Long USER_ID = 99L;
     private TaskRequestDto taskRequestDto;
     private TaskResponseDto firstResponseDto;
-    private TaskUpdateRequestDto updateRequestDto;
+    private TaskUpdateDto updateDto;
     private TaskResponseDto secondResponseDto;
     private TaskFilterDto taskFilterDto;
 
@@ -70,7 +70,7 @@ public class TaskControllerTest {
                 .description("newDescription")
                 .id(17L)
                 .build();
-        updateRequestDto = TaskUpdateRequestDto.builder()
+        updateDto = TaskUpdateDto.builder()
                 .name("newName")
                 .id(17L)
                 .status(TaskStatus.DONE)
@@ -101,18 +101,18 @@ public class TaskControllerTest {
 
     @Test
     public void testUpdateTaskSuccess() throws Exception {
-        when(taskService.updateTask(updateRequestDto, USER_ID)).thenReturn(secondResponseDto);
+        when(taskService.updateTask(updateDto, USER_ID)).thenReturn(secondResponseDto);
         when(userContext.getUserId()).thenReturn(USER_ID);
 
-        String taskUpdateDtoJson = new Gson().toJson(updateRequestDto);
+        String taskUpdateDtoJson = new Gson().toJson(updateDto);
 
         mockMvc.perform(put("/api/v1/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskUpdateDtoJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(17)))
-                .andExpect(jsonPath("$.name", is(updateRequestDto.getName())))
-                .andExpect(jsonPath("$.description", is(updateRequestDto.getDescription())));
+                .andExpect(jsonPath("$.name", is(updateDto.getName())))
+                .andExpect(jsonPath("$.description", is(updateDto.getDescription())));
     }
 
     @Test
@@ -125,19 +125,6 @@ public class TaskControllerTest {
                         .param("description", taskFilterDto.getDescription())
                         .param("performerUserId", taskFilterDto.getPerformerUserId().toString())
                         .param("status", taskFilterDto.getStatus().toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is(13)))
-                .andExpect(jsonPath("$[0].name", is("name")))
-                .andExpect(jsonPath("$[1].id", is(17)))
-                .andExpect(jsonPath("$[1].name", is("newName")));
-    }
-
-    @Test
-    public void testGetTasksSuccess() throws Exception {
-        when(taskService.getTasks(PROJECT_ID, USER_ID)).thenReturn(Arrays.asList(firstResponseDto, secondResponseDto));
-        when(userContext.getUserId()).thenReturn(USER_ID);
-
-        mockMvc.perform(get("/api/v1/tasks/project/" + PROJECT_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", is(13)))
                 .andExpect(jsonPath("$[0].name", is("name")))

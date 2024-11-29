@@ -4,7 +4,7 @@ import faang.school.projectservice.config.context.UserContext;
 import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
-import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
+import faang.school.projectservice.dto.task.TaskUpdateDto;
 import faang.school.projectservice.service.task.TaskService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -35,21 +35,15 @@ public class TaskController {
     }
 
     @PutMapping
-    public TaskResponseDto updateTask(@RequestBody @Valid TaskUpdateRequestDto taskUpdateRequestDto) {
+    public TaskResponseDto updateTask(@RequestBody @Valid TaskUpdateDto taskUpdateDto) {
         long userId = userContext.getUserId();
-        return taskService.updateTask(taskUpdateRequestDto, userId);
+        return taskService.updateTask(taskUpdateDto, userId);
     }
 
     @GetMapping("/project/{projectId}/filter")
     public List<TaskResponseDto> getTasksByFilters(@ModelAttribute TaskFilterDto taskFilterDto, @PathVariable Long projectId) {
         long userId = userContext.getUserId();
         return taskService.getTasksByFilters(taskFilterDto, projectId, userId);
-    }
-
-    @GetMapping("/project/{projectId}")
-    public List<TaskResponseDto> getTasks(@PathVariable @NotNull Long projectId) {
-        long userId = userContext.getUserId();
-        return taskService.getTasks(projectId, userId);
     }
 
     @GetMapping("/{taskId}")

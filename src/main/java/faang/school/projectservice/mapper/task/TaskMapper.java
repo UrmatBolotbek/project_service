@@ -2,12 +2,11 @@ package faang.school.projectservice.mapper.task;
 
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
-import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
+import faang.school.projectservice.dto.task.TaskUpdateDto;
 import faang.school.projectservice.model.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public interface TaskMapper {
 
     @Mapping(target = "performerUserId", source = "performerUserId", ignore = true)
     @Mapping(target = "reporterUserId", source = "reporterUserId", ignore = true)
-    Task toEntity(TaskUpdateRequestDto requestDto);
+    Task toEntity(TaskUpdateDto requestDto);
 
     Task toNewTask(Task task);
 

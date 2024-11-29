@@ -3,7 +3,7 @@ package faang.school.projectservice.service.task;
 import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
-import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
+import faang.school.projectservice.dto.task.TaskUpdateDto;
 import faang.school.projectservice.jpa.TaskRepository;
 import faang.school.projectservice.mapper.task.TaskMapperImpl;
 import faang.school.projectservice.model.Project;
@@ -52,7 +52,7 @@ public class TaskServiceTest {
 
     private List<TaskFilter> filters;
     private TaskRequestDto taskRequestDto;
-    private TaskUpdateRequestDto taskUpdateDto;
+    private TaskUpdateDto taskUpdateDto;
     private TaskResponseDto taskResponseDto;
     private Stage stage;
     private Task task;
@@ -80,7 +80,7 @@ public class TaskServiceTest {
         stage = Stage.builder()
                 .stageId(14L)
                 .build();
-        taskUpdateDto = TaskUpdateRequestDto
+        taskUpdateDto = TaskUpdateDto
                 .builder()
                 .name("newName")
                 .description("newDescription")
@@ -141,18 +141,6 @@ public class TaskServiceTest {
                 .getTasksByFilters(new TaskFilterDto(), PROJECT_ID, AUTHOR_ID);
 
         verify(taskRepository).findAllByProjectId(PROJECT_ID);
-        assertEquals(realList,taskMapper.toDto(tasks));
-    }
-
-    @Test
-    public void testGetTasksSuccess() {
-        when(projectRepository.getProjectById(PROJECT_ID)).thenReturn(project);
-        List<Task> tasks = Collections.singletonList(task);
-        when(taskRepository.findAllByProjectId(PROJECT_ID)).thenReturn(tasks);
-
-        List<TaskResponseDto> realList = taskService
-                .getTasks(PROJECT_ID, AUTHOR_ID);
-
         assertEquals(realList,taskMapper.toDto(tasks));
     }
 

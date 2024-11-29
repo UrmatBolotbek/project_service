@@ -1,6 +1,7 @@
 package faang.school.projectservice.dto.task;
 
 import faang.school.projectservice.model.TaskStatus;
+import faang.school.projectservice.validator.task.StatusSubset;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

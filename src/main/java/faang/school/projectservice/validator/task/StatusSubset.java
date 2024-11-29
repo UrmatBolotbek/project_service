@@ -1,4 +1,4 @@
-package faang.school.projectservice.dto.task;
+package faang.school.projectservice.validator.task;
 
 import faang.school.projectservice.model.TaskStatus;
 import jakarta.validation.Constraint;

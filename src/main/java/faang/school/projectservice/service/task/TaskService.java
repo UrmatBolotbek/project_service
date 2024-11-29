@@ -3,7 +3,7 @@ package faang.school.projectservice.service.task;
 import faang.school.projectservice.dto.task.TaskFilterDto;
 import faang.school.projectservice.dto.task.TaskRequestDto;
 import faang.school.projectservice.dto.task.TaskResponseDto;
-import faang.school.projectservice.dto.task.TaskUpdateRequestDto;
+import faang.school.projectservice.dto.task.TaskUpdateDto;
 import faang.school.projectservice.jpa.TaskRepository;
 import faang.school.projectservice.mapper.task.TaskMapper;
 import faang.school.projectservice.model.Project;
@@ -34,8 +34,7 @@ public class TaskService {
 
     public TaskResponseDto createTask(TaskRequestDto taskRequestDto, Long authorId) {
         taskValidator.validateUser(authorId);
-        Long projectId = taskRequestDto.getProjectId();
-        Project project = projectRepository.getProjectById(projectId);
+        Project project = projectRepository.getProjectById(taskRequestDto.getProjectId());
         taskValidator.validateAuthorInThisProject(project, authorId);
         Task task = taskMapper.toEntity(taskRequestDto);
         task.setProject(project);
@@ -44,7 +43,7 @@ public class TaskService {
         return taskMapper.toDto(task);
     }
 
-    public TaskResponseDto updateTask(TaskUpdateRequestDto updateDto, Long authorId) {
+    public TaskResponseDto updateTask(TaskUpdateDto updateDto, Long authorId) {
         log.info("Updating task: {} by userID {}", updateDto.getId(), authorId);
         taskValidator.validateUser(authorId);
         Task oldTask = taskValidator.validateTask(updateDto.getId());
@@ -71,16 +70,6 @@ public class TaskService {
         return taskMapper.toDto(tasks.toList());
     }
 
-    public List<TaskResponseDto> getTasks(Long projectId, Long authorId) {
-        log.info("Getting all tasks by userID: {}", authorId);
-        taskValidator.validateUser(authorId);
-        Project project = projectRepository.getProjectById(projectId);
-        taskValidator.validateAuthorInThisProject(project, authorId);
-        List<Task> tasks = taskRepository.findAllByProjectId(projectId);
-        log.info("The request to receive all tasks from the user {} was completed successfully", authorId);
-        return taskMapper.toDto(tasks);
-    }
-
     public TaskResponseDto getTask(Long taskId, Long authorId) {
         log.info("Getting task by userID: {}", authorId);
         taskValidator.validateUser(authorId);
@@ -91,7 +80,7 @@ public class TaskService {
         return taskMapper.toDto(task);
     }
 
-    private Task getUpdateTask(TaskUpdateRequestDto updateDto, Project project) {
+    private Task getUpdateTask(TaskUpdateDto updateDto, Project project) {
         Task newTask = taskMapper.toEntity(updateDto);
         newTask.setProject(project);
         if (updateDto.getPerformerUserId() != null) {
