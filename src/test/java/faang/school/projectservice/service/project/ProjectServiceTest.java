@@ -104,11 +104,12 @@ public class ProjectServiceTest {
         when(projectRepository.save(any(Project.class))).thenReturn(project);
         when(projectMapper.toDto(project)).thenReturn(projectResponseDto);
 
-        ProjectResponseDto result = projectService.update(PROJECT_ID, projectUpdateDto);
+        ProjectResponseDto result = projectService.update(PROJECT_ID, USER_ID, projectUpdateDto);
 
         assertNotNull(result);
         assertEquals(PROJECT_ID, result.getId());
         verify(projectValidator).validateProject(PROJECT_ID);
+        verify(projectValidator).verifyUserOwnershipOrMembership(project, USER_ID);
         verify(projectMapper).updateFromDto(projectUpdateDto, project);
         verify(projectRepository).save(any(Project.class));
         verify(projectMapper).toDto(project);

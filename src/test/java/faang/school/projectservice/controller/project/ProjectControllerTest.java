@@ -79,13 +79,13 @@ public class ProjectControllerTest {
 
     @Test
     public void testUpdateProject() throws Exception {
-        when(projectService.update(eq(PROJECT_ID), any())).thenReturn(projectResponseDto);
+        when(projectService.update(eq(PROJECT_ID), eq(USER_ID), any())).thenReturn(projectResponseDto);
 
         String validJsonRequest = """
-                {
-                    "description": "%s"
-                }
-                """.formatted(UPDATED_PROJECT_DESC);
+            {
+                "description": "%s"
+            }
+            """.formatted(UPDATED_PROJECT_DESC);
 
         mockMvc.perform(put("/api/v1/projects/" + PROJECT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +94,7 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.id").value(PROJECT_ID))
                 .andExpect(jsonPath("$.description").value(PROJECT_NAME));
 
-        verify(projectService).update(eq(PROJECT_ID), any());
+        verify(projectService).update(eq(PROJECT_ID), eq(USER_ID), any());
     }
 
     @Test

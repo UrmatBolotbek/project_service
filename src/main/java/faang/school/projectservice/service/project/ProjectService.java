@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -43,12 +42,12 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto update(Long projectId, ProjectUpdateDto projectDto) {
+    public ProjectResponseDto update(Long projectId, long userId, ProjectUpdateDto projectDto) {
         log.info("Updating project with ID {}", projectId);
 
         Project project = projectValidator.validateProject(projectId);
+        projectValidator.verifyUserOwnershipOrMembership(project, userId);
         projectMapper.updateFromDto(projectDto, project);
-        project.setUpdatedAt(LocalDateTime.now());
         project = projectRepository.save(project);
 
         log.info("Project with ID {} updated successfully", projectId);

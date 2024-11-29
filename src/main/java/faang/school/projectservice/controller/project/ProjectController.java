@@ -63,7 +63,8 @@ public class ProjectController {
     public ProjectResponseDto updateProject(
             @PathVariable @NotNull(message = "Project ID should not be null") Long id,
             @Valid @RequestBody ProjectUpdateDto projectUpdateDto) {
-        return projectService.update(id, projectUpdateDto);
+        long userId = userContext.getUserId();
+        return projectService.update(id, userId, projectUpdateDto);
     }
 
     @Operation(

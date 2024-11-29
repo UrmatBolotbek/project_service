@@ -35,4 +35,21 @@ public class ProjectValidator {
                         .flatMap(team -> team.getTeamMembers().stream())
                         .anyMatch(teamMember -> userId.equals(teamMember.getId()));
     }
+
+    public void verifyUserOwnershipOrMembership(Project project, long userId) {
+        if (project.getOwnerId() != userId && !validateMembership(userId, project)) {
+            log.warn("User with ID {} is not an owner or member of the project with ID {}", userId, project.getId());
+            throw new DataValidationException(String.format("User with ID %d is not an owner " +
+                    "or member of the project with ID %d", userId, project.getId()));
+        }
+
+        log.info("User with ID {} has permission to update the project with ID {}", userId, project.getId());
+    }
+
+    private boolean validateMembership(long userId, Project project) {
+        return project.getTeams().stream()
+                .anyMatch(team -> team.getTeamMembers().stream()
+                        .anyMatch(teamMember -> teamMember.getUserId() == userId)
+                );
+    }
 }

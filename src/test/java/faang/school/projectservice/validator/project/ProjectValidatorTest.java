@@ -42,6 +42,7 @@ public class ProjectValidatorTest {
         project = Project.builder()
                 .id(PROJECT_ID)
                 .visibility(ProjectVisibility.PRIVATE)
+                .ownerId(OWNER_ID)
                 .teams(Collections.emptyList())
                 .build();
     }
@@ -122,5 +123,36 @@ public class ProjectValidatorTest {
         boolean result = projectValidator.isVisible(project, USER_ID);
 
         assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Verify user ownership or membership - user is owner")
+    void testVerifyUserOwnershipOrMembershipUserIsOwner() {
+        assertDoesNotThrow(() -> projectValidator.verifyUserOwnershipOrMembership(project, OWNER_ID));
+    }
+
+    @Test
+    @DisplayName("Verify user ownership or membership - user is team member")
+    void testVerifyUserOwnershipOrMembershipUserIsTeamMember() {
+        project.setTeams(Collections.singletonList(
+                Team.builder()
+                        .teamMembers(Collections.singletonList(TeamMember.builder().userId(USER_ID).build()))
+                        .build()
+        ));
+
+        assertDoesNotThrow(() -> projectValidator.verifyUserOwnershipOrMembership(project, USER_ID));
+    }
+
+    @Test
+    @DisplayName("Verify user ownership or membership - user is neither owner or member")
+    void testVerifyUserOwnershipOrMembershipUserIsNeither() {
+        project.setTeams(Collections.emptyList());
+
+        DataValidationException exception = assertThrows(DataValidationException.class, () ->
+                projectValidator.verifyUserOwnershipOrMembership(project, USER_ID)
+        );
+
+        assertEquals(String.format("User with ID %d is not an owner or member of the project with ID %d",
+                USER_ID, PROJECT_ID), exception.getMessage());
     }
 }
