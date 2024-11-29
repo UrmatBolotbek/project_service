@@ -1,6 +1,5 @@
 package faang.school.projectservice.dto.subproject;
 
-import faang.school.projectservice.model.ProjectVisibility;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,7 +26,4 @@ public class CreateSubProjectDto {
 
     @NotNull(message = "parentProjectId should not be null")
     private Long parentProjectId;
-
-    @NotNull(message = "The project visibility should not be null")
-    private ProjectVisibility visibility;
 }

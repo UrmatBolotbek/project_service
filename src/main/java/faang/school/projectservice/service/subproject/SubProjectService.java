@@ -38,10 +38,10 @@ public class SubProjectService {
         Project parentProject = subProjectValidator.validateProjectId(createDto.getParentProjectId());
 
         subProjectValidator.checkIsRootProject(parentProject);
-        subProjectValidator.checkVisibility(parentProject, createDto);
 
         Project subProject = subProjectMapper.toEntity(createDto);
         subProject.setParentProject(parentProject);
+        subProject.setVisibility(parentProject.getVisibility());
         subProject = projectRepository.save(subProject);
 
         log.info("Successfully created sub-project with ID: {}", subProject.getId());
@@ -72,11 +72,11 @@ public class SubProjectService {
     }
 
     @Transactional
-    public List<SubProjectResponseDto> findSubProjectsByParentId(Long parentId, Long userId,
+    public List<SubProjectResponseDto> findSubProjectsByParentId(Long userId,
                                                                  SubProjectFilterDto filterDto) {
-        log.info("Finding sub-projects for parent project ID: {} with filters applied", parentId);
+        log.info("Finding sub-projects for parent project ID: {} with filters applied", filterDto.getParentId());
 
-        Stream<Project> subProjects = projectRepository.findAllByParentProjectId(parentId).stream();
+        Stream<Project> subProjects = projectRepository.findAllByParentProjectId(filterDto.getParentId()).stream();
 
         return filters.stream()
                 .filter(filter -> filter.isApplicable(filterDto))

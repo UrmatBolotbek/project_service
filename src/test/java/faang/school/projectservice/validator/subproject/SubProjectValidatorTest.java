@@ -1,6 +1,5 @@
 package faang.school.projectservice.validator.subproject;
 
-import faang.school.projectservice.dto.subproject.CreateSubProjectDto;
 import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
@@ -37,7 +36,6 @@ class SubProjectValidatorTest {
 
     private Project parentProject;
     private Project subProject;
-    private CreateSubProjectDto createSubProjectDto;
 
     @BeforeEach
     void setUp() {
@@ -50,11 +48,6 @@ class SubProjectValidatorTest {
                 .id(PROJECT_ID)
                 .parentProject(parentProject)
                 .status(ProjectStatus.COMPLETED)
-                .visibility(ProjectVisibility.PRIVATE)
-                .build();
-
-        createSubProjectDto = CreateSubProjectDto.builder()
-                .parentProjectId(PARENT_PROJECT_ID)
                 .visibility(ProjectVisibility.PRIVATE)
                 .build();
     }
@@ -79,15 +72,6 @@ class SubProjectValidatorTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("The project is not a root project (it has a parent project). ID: %d"
                         .formatted(PROJECT_ID));
-    }
-
-    @Test
-    @DisplayName("Check visibility - should throw exception when trying to create private sub-project under public parent")
-    void testCheckVisibilityWithInvalidSettings() {
-        assertThatThrownBy(() -> subProjectValidator.checkVisibility(parentProject, createSubProjectDto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Private sub-projects cannot be created under a public parent (ID: %d)"
-                        .formatted(PARENT_PROJECT_ID));
     }
 
     @Test

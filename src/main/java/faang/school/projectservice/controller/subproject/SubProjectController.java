@@ -25,7 +25,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/projects/subprojects")
+@RequestMapping("api/v1/projects/subprojects")
 @RequiredArgsConstructor
 public class SubProjectController {
 
@@ -39,17 +39,14 @@ public class SubProjectController {
     }
 
     @PutMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.OK)
     public SubProjectResponseDto updateSubProject(@PathVariable @NotNull Long projectId,
                                                   @Valid @RequestBody SubProjectUpdateDto updatingRequest) {
         return subProjectService.update(projectId, updatingRequest);
     }
 
-    @GetMapping("/subprojects-by-filter/{parentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<SubProjectResponseDto> getSubProjects(@PathVariable @NotNull Long parentId,
-                                                      @Valid @ModelAttribute SubProjectFilterDto filter) {
+    @GetMapping()
+    public List<SubProjectResponseDto> getSubProjects(@Valid @ModelAttribute SubProjectFilterDto filter) {
         long userId = userContext.getUserId();
-        return subProjectService.findSubProjectsByParentId(parentId, userId, filter);
+        return subProjectService.findSubProjectsByParentId(userId, filter);
     }
 }

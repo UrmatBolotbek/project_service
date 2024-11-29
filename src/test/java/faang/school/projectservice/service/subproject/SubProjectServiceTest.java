@@ -118,7 +118,7 @@ class SubProjectServiceTest {
 
     @Test
     void testFindSubProjectsByParentId() {
-        SubProjectFilterDto filterDto = SubProjectFilterDto.builder().build();
+        SubProjectFilterDto filterDto = SubProjectFilterDto.builder().parentId(PARENT_PROJECT_ID).build();
         SubProjectFilter filter = mock(SubProjectFilter.class);
 
         when(projectRepository.findAllByParentProjectId(PARENT_PROJECT_ID)).thenReturn(List.of(subProject));
@@ -129,7 +129,7 @@ class SubProjectServiceTest {
         when(subProjectMapper.toDto(subProject)).thenReturn(subProjectResponseDto);
 
         List<SubProjectResponseDto> result = subProjectService
-                .findSubProjectsByParentId(PARENT_PROJECT_ID, USER_ID, filterDto);
+                .findSubProjectsByParentId(USER_ID, filterDto);
 
         verify(projectRepository).findAllByParentProjectId(PARENT_PROJECT_ID);
         verify(filter).isApplicable(filterDto);

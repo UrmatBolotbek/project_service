@@ -1,6 +1,5 @@
 package faang.school.projectservice.validator.subproject;
 
-import faang.school.projectservice.dto.subproject.CreateSubProjectDto;
 import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectStatus;
@@ -29,16 +28,6 @@ public class SubProjectValidator {
             log.warn("Project with ID {} is not a root project", project.getId());
             throw new IllegalArgumentException(("The project is not a root project " +
                     "(it has a parent project). ID: %d").formatted(project.getId()));
-        }
-    }
-
-    public void checkVisibility(Project parent, CreateSubProjectDto child) {
-        log.info("Checking visibility for parent project ID {} and child project visibility", parent.getId());
-        if (parent.getVisibility() == ProjectVisibility.PUBLIC && child.getVisibility() == ProjectVisibility.PRIVATE) {
-            log.warn("Invalid visibility: Cannot create private sub-project under public parent project ID {}",
-                    parent.getId());
-            throw new IllegalArgumentException("Private sub-projects cannot be created under a public parent (ID: %d)"
-                    .formatted(parent.getId()));
         }
     }
 

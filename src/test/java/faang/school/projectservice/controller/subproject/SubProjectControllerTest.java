@@ -30,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class SubProjectControllerTest {
     private static final Long SUBPROJECT_ID = 2L;
-    private static final Long PARENT_PROJECT_ID = 1L;
     private static final String SUBPROJECT_NAME = "Test SubProject";
     private static final String UPDATED_DESCRIPTION = "Updated Description";
     private static final Long SUBPROJECT_1_ID = 2L;
@@ -74,7 +73,7 @@ public class SubProjectControllerTest {
     public void testCreateSubProject() throws Exception {
         when(service.create(any(CreateSubProjectDto.class))).thenReturn(subProjectResponseDto);
 
-        mockMvc.perform(post("/projects/subprojects")
+        mockMvc.perform(post("/api/v1/projects/subprojects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -97,7 +96,7 @@ public class SubProjectControllerTest {
     public void testUpdateSubProject() throws Exception {
         when(service.update(anyLong(), any(SubProjectUpdateDto.class))).thenReturn(subProjectResponseDto);
 
-        mockMvc.perform(put("/projects/subprojects/{projectId}", SUBPROJECT_ID)
+        mockMvc.perform(put("/api/v1/projects/subprojects/{projectId}", SUBPROJECT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -112,16 +111,16 @@ public class SubProjectControllerTest {
     }
 
     @Test
-    public void testFindSubProjectsByParentId() throws Exception {
-        when(service.findSubProjectsByParentId(anyLong(), anyLong(), any(SubProjectFilterDto.class))).thenReturn(subProjects);
+    public void testGetSubProjects() throws Exception {
+        when(service.findSubProjectsByParentId(anyLong(), any(SubProjectFilterDto.class))).thenReturn(subProjects);
 
-        mockMvc.perform(get("/projects/subprojects/subprojects-by-filter/{parentId}", PARENT_PROJECT_ID)
-                        .param("namePattern", "Test"))
+        mockMvc.perform(get("/api/v1/projects/subprojects")
+                        .param("namePattern", "Test")
+                        .param("parentId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value(SUBPROJECT_1_NAME))
                 .andExpect(jsonPath("$[1].name").value(SUBPROJECT_2_NAME));
 
-        verify(service).findSubProjectsByParentId(anyLong(), anyLong(), any(SubProjectFilterDto.class));
+        verify(service).findSubProjectsByParentId(anyLong(), any(SubProjectFilterDto.class));
     }
-
 }
