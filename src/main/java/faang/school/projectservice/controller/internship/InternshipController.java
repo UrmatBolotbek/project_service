@@ -33,25 +33,21 @@ public class InternshipController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public void updateInternship(@Valid @RequestBody InternshipUpdateDto internshipUpdateDto) {
         internshipService.updateInternship(internshipUpdateDto);
     }
 
     @GetMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.OK)
     public List<InternshipDto> getInternshipsOfProjectWithFilters(@PathVariable long projectId, @ModelAttribute InternshipFilterDto filter) {
         return internshipService.getInternshipsOfProjectWithFilters(projectId, filter);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<InternshipDto> getAllInternships() {
         return internshipService.getAllInternships();
     }
 
     @GetMapping("/{internshipId}")
-    @ResponseStatus(HttpStatus.OK)
     public InternshipDto getInternshipById(@PathVariable long internshipId) {
         return internshipService.getInternshipById(internshipId);
     }

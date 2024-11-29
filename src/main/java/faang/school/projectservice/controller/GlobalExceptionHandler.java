@@ -1,70 +1,63 @@
 package faang.school.projectservice.controller;
 
 import faang.school.projectservice.exception.DataValidationException;
-import faang.school.projectservice.exception.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.ws.rs.ForbiddenException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-@RequiredArgsConstructor
-@Scope("prototype")
 public class GlobalExceptionHandler {
-    private final ErrorResponse errorResponse;
 
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleForbiddenException(ForbiddenException e) {
-        log.error("Access to the requested page is prohibited or the user does not have permission: {}", e.getMessage());
+    public ProblemDetail handleForbiddenException(ForbiddenException e) {
+        log.warn("Access to the requested page is prohibited or the user does not have permission: {}", e.getMessage());
 
-        errorResponse.setMessage(e.getMessage());
-        errorResponse.setError(HttpStatus.FORBIDDEN.getReasonPhrase());
-        errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
+        problemDetail.setProperty("timeStamp", LocalDateTime.now());
 
-        return errorResponse;
+        return problemDetail;
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
-        log.error("Entity not found: {}", e.getMessage());
+    public ProblemDetail handleEntityNotFoundException(EntityNotFoundException e) {
+        log.warn("Entity not found: {}", e.getMessage());
 
-        errorResponse.setMessage(e.getMessage());
-        errorResponse.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
-        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setProperty("timeStamp", LocalDateTime.now());
 
-        return errorResponse;
+        return problemDetail;
     }
 
     @ExceptionHandler(DataValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDataValidationException(DataValidationException e) {
-        log.error("Bad request: {}", e.getMessage());
+    public ProblemDetail handleDataValidationException(DataValidationException e) {
+        log.warn("Bad request: {}", e.getMessage());
 
-        errorResponse.setMessage(e.getMessage());
-        errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setProperty("timeStamp", LocalDateTime.now());
 
-        return errorResponse;
+        return problemDetail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("Bad request: {}", e.getMessage());
+    public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.warn("Bad request: {}", e.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach(error -> {
@@ -72,22 +65,24 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        errorResponse.setMessage(errors.toString());
-        errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
 
-        return ResponseEntity.badRequest().body(errorResponse);
+        for (Map.Entry<String, String> entry : errors.entrySet()) {
+            problemDetail.setProperty(entry.getKey(), entry.getValue());
+        }
+
+        problemDetail.setProperty("timeStamp", LocalDateTime.now());
+
+        return problemDetail;
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRuntimeException(RuntimeException e) {
+    public ProblemDetail handleRuntimeException(RuntimeException e) {
         log.error("Unexpected error occurred: {}", e.getMessage());
 
-        errorResponse.setMessage(e.getMessage());
-        errorResponse.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-        errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        problemDetail.setProperty("timeStamp", LocalDateTime.now());
 
-        return errorResponse;
+        return problemDetail;
     }
 }

@@ -45,7 +45,7 @@ public class VacancyValidator {
         if (!(curator.getRoles().contains(TeamRole.MANAGER) || curator.getRoles().contains(TeamRole.OWNER))) {
             log.warn("Curator with ID {} lacks the required roles", curator.getId());
             throw new InsufficientPermissionsException(
-                    "Curator with ID %d does not have sufficient permissions to manage vacancies.", curator.getId());
+                    "Curator with ID " + curator.getId() + " does not have sufficient permissions to manage vacancies.");
         }
         log.info("Curator with ID {} has valid permissions", curator.getId());
     }
