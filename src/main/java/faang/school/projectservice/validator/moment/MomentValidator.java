@@ -23,7 +23,7 @@ public class MomentValidator {
 
     public Moment validateExistingMoment(long momentId) {
         return momentRepository.findById(momentId).orElseThrow(() ->
-                new DataValidationException("Moment with ID " + momentId + "not found"));
+                new DataValidationException("Moment with ID " + momentId + " not found"));
     }
 
     public Project validateExistingProject(long projectId) {
