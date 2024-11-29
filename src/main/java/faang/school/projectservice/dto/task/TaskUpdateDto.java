@@ -29,7 +29,7 @@ public class TaskUpdateDto {
     @NotBlank
     private String description;
 
-    @StatusSubset(anyOf = {TaskStatus.TODO,
+    @StatusSubset(anyOf = {
             TaskStatus.TESTING,
             TaskStatus.CANCELLED,
             TaskStatus.IN_PROGRESS,
