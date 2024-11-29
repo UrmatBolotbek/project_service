@@ -23,12 +23,12 @@ public class MomentValidator {
 
     public Moment validateExistingMoment(long momentId) {
         return momentRepository.findById(momentId).orElseThrow(() ->
-                new DataValidationException("Moment with ID %s not found", momentId));
+                new DataValidationException("Moment with ID " + momentId + " not found"));
     }
 
     public Project validateExistingProject(long projectId) {
         return projectJpaRepository.findById(projectId).orElseThrow(() ->
-                new DataValidationException("Project with ID %s not found", projectId));
+                new DataValidationException("Project with ID " + projectId + " not found"));
     }
 
     public List<Project> validateProjectsByIdAndStatus(List<Long> projectIds) {
@@ -42,8 +42,7 @@ public class MomentValidator {
         for (Project project : projects) {
             if (ProjectStatus.CANCELLED.equals(project.getStatus())) {
                 log.warn("Validation failed: Project with ID {} is in 'CANCELLED' status.", project.getId());
-                throw new DataValidationException("The project with ID %s is in 'CANCELLED' status." +
-                        " Operation is not allowed.", project.getId());
+                throw new DataValidationException("The project with ID " + project.getId() + " is in 'CANCELLED' status. Operation is not allowed.");
             }
         }
 

@@ -2,7 +2,7 @@ package faang.school.projectservice.validator.task;
 
 import faang.school.projectservice.client.UserServiceClient;
 import faang.school.projectservice.dto.client.UserDto;
-import faang.school.projectservice.exeption.DataValidationException;
+import faang.school.projectservice.exception.DataValidationException;
 import faang.school.projectservice.jpa.TaskRepository;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.Task;
