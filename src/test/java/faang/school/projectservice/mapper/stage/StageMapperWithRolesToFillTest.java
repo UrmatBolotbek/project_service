@@ -46,7 +46,6 @@ class StageMapperWithRolesToFillTest {
         stageMapperWithRolesToFill = new StageMapperWithRolesToFillImpl(
                 projectMapper,
                 rolesMapper,
-                taskMapper,
                 executorMapper);
 
         //Initializing Project

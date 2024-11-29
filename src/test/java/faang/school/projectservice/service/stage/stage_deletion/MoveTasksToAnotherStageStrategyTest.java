@@ -47,12 +47,10 @@ class MoveTasksToAnotherStageStrategyTest {
         ExecutorMapperImpl executorMapper = new ExecutorMapperImpl();
         ProjectMapperImpl projectMapper = new ProjectMapperImpl();
         StageRolesMapperImpl rolesMapper = new StageRolesMapperImpl();
-        TaskMapperImpl taskMapper = new TaskMapperImpl();
 
         StageMapperGeneralImpl stageMapperGeneral = new StageMapperGeneralImpl(
                 projectMapper,
                 rolesMapper,
-                taskMapper,
                 executorMapper);
 
         MockitoAnnotations.openMocks(this);
