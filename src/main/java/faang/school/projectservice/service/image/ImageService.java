@@ -23,6 +23,9 @@ public class ImageService {
         log.info("Reading and processing image...");
         BufferedImage originalImage = ImageIO.read(inputStream);
 
+        if (originalImage == null) {
+            throw new IOException("Failed to read input stream into an image.");}
+
         int targetWidth = isSquare ? SQUARE_IMAGE_SIZE : RECTANGLE_IMAGE_WIDTH;
         int targetHeight = isSquare ? SQUARE_IMAGE_SIZE : RECTANGLE_IMAGE_HEIGHT;
 

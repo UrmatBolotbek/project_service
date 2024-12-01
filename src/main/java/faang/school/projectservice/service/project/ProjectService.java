@@ -1,6 +1,6 @@
 package faang.school.projectservice.service.project;
 
-import faang.school.projectservice.exeption.FileProcessingException;
+import faang.school.projectservice.exception.FileProcessingException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.repository.ProjectRepository;
 import faang.school.projectservice.service.image.ImageService;
