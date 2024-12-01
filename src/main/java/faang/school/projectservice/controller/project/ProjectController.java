@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +19,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/v1/projects")
 @Tag(name = "Project Controller", description = "Controller for managing projects")
 @ApiResponse(responseCode = "200", description = "Image uploaded successfully.")
-@ApiResponse(responseCode = "400", description = "Invalid request parameters.")
-@ApiResponse(responseCode = "500", description = "Server error.")
+@ApiResponse(responseCode = "400", description = "Invalid input data")
+@ApiResponse(responseCode = "404", description = "Data not found")
+@ApiResponse(responseCode = "500", description = "Internal server error")
 public class ProjectController {
 
     private final ProjectService projectService;
