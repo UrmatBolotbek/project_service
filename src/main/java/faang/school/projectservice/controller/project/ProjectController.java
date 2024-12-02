@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +34,7 @@ import java.util.List;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 @Tag(name = "Project Controller", description = "Controller for managing projects")
+@ApiResponse(responseCode = "200", description = "Image uploaded successfully.")
 @ApiResponse(responseCode = "201", description = "Project successfully created")
 @ApiResponse(responseCode = "400", description = "Invalid input data")
 @ApiResponse(responseCode = "404", description = "Data not found")
@@ -39,6 +43,16 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserContext userContext;
+
+    @Operation(summary = "Upload project cover image", description = "Uploads a cover image for the specified project.")
+
+    @PostMapping("/{projectId}/cover")
+    public ResponseEntity<Void> uploadCoverImage(
+            @PathVariable @NotNull(message = "ProjectId can't be null") Long projectId,
+            @RequestParam("file") MultipartFile file) {
+        projectService.uploadCoverImage(projectId, file);
+        return ResponseEntity.ok().build();
+    }
 
     @Operation(
             summary = "Create a new project",

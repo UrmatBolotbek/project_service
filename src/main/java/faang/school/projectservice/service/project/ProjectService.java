@@ -7,25 +7,39 @@ import faang.school.projectservice.dto.project.ProjectUpdateDto;
 import faang.school.projectservice.exception.project.ForbiddenAccessException;
 import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.mapper.project.ProjectServiceMapper;
+import faang.school.projectservice.exception.FileProcessingException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.service.project.filter.ProjectFilter;
 import faang.school.projectservice.validator.project.ProjectValidator;
+import faang.school.projectservice.repository.ProjectRepository;
+import faang.school.projectservice.service.image.ImageService;
+import faang.school.projectservice.service.s3.S3Service;
+import faang.school.projectservice.validator.cover.CoverValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
     private final ProjectValidator projectValidator;
-    private final ProjectJpaRepository projectRepository;
+    private final ProjectJpaRepository projectJpaRepository;
     private final ProjectServiceMapper projectMapper;
     private final List<ProjectFilter> projectFilters;
+    private final ProjectRepository projectRepository;
+    private final S3Service s3Service;
+    private final ImageService imageService;
+    private final CoverValidator coverValidator;
 
     @Transactional
     public ProjectResponseDto create(ProjectRequestDto projectDto, long ownerId) {
@@ -35,7 +49,7 @@ public class ProjectService {
 
         Project project = projectMapper.toEntity(projectDto);
         project.setOwnerId(ownerId);
-        project = projectRepository.save(project);
+        project = projectJpaRepository.save(project);
 
         log.info("New project created successfully with ID {}", project.getId());
         return projectMapper.toDto(project);
@@ -48,7 +62,7 @@ public class ProjectService {
         Project project = projectValidator.validateProject(projectId);
         projectValidator.verifyUserOwnershipOrMembership(project, userId);
         projectMapper.updateFromDto(projectDto, project);
-        project = projectRepository.save(project);
+        project = projectJpaRepository.save(project);
 
         log.info("Project with ID {} updated successfully", projectId);
         return projectMapper.toDto(project);
@@ -58,7 +72,7 @@ public class ProjectService {
     public List<ProjectResponseDto> getProjects(ProjectFilterDto filterDto, long userId) {
         log.info("Retrieving projects with applied filters");
 
-        Stream<Project> projects = projectRepository.findAll().stream();
+        Stream<Project> projects = projectJpaRepository.findAll().stream();
 
         log.info("Returning filtered list of projects");
         return projectFilters.stream()
@@ -80,5 +94,37 @@ public class ProjectService {
 
         log.info("Returning project with ID {} for user with ID {}", projectId, userId);
         return projectMapper.toDto(project);
+    }
+
+    public void uploadCoverImage(Long projectId, MultipartFile file) {
+        log.info("Uploading cover image for project with ID: {}", projectId);
+
+        coverValidator.validateFileSize(file.getSize());
+        log.info("Cover image validated successfully for project ID {}", projectId);
+
+        Project project = projectRepository.getProjectById(projectId);
+        if (project == null) {
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not exist.");
+        }
+
+        try {
+
+            BufferedImage originalImage = ImageIO.read(file.getInputStream());
+            if (originalImage == null) {
+                throw new IllegalArgumentException("Invalid image file format.");
+            }
+            boolean isSquare = originalImage.getWidth() == originalImage.getHeight();
+
+            InputStream processedImageStream = imageService.processImage(file.getInputStream(), isSquare);
+
+            String coverImageId = s3Service.uploadFile("cover_" + projectId, processedImageStream, file.getContentType());
+
+            project.setCoverImageId(coverImageId);
+            projectJpaRepository.save(project);
+
+            log.info("Cover image for project ID '{}' successfully uploaded and saved.", projectId);
+        } catch (IOException e) {
+            throw new FileProcessingException("Failed to process the cover image file for project ID " + projectId, e);
+        }
     }
 }

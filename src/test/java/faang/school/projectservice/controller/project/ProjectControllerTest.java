@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -22,6 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectControllerTest {
@@ -60,12 +64,12 @@ public class ProjectControllerTest {
         when(projectService.create(any(), eq(USER_ID))).thenReturn(projectResponseDto);
 
         String validJsonRequest = """
-            {
-                "name": "%s",
-                "description": "Project Description",
-                "visibility": "PUBLIC"
-            }
-            """.formatted(PROJECT_NAME);
+                {
+                    "name": "%s",
+                    "description": "Project Description",
+                    "visibility": "PUBLIC"
+                }
+                """.formatted(PROJECT_NAME);
 
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,10 +86,10 @@ public class ProjectControllerTest {
         when(projectService.update(eq(PROJECT_ID), eq(USER_ID), any())).thenReturn(projectResponseDto);
 
         String validJsonRequest = """
-            {
-                "description": "%s"
-            }
-            """.formatted(UPDATED_PROJECT_DESC);
+                {
+                    "description": "%s"
+                }
+                """.formatted(UPDATED_PROJECT_DESC);
 
         mockMvc.perform(put("/api/v1/projects/" + PROJECT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,5 +125,31 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.description").value(PROJECT_NAME));
 
         verify(projectService).getProject(eq(PROJECT_ID), eq(USER_ID));
+    }
+
+    @Test
+    public void testUploadCoverImage() throws Exception {
+        Long projectId = 1L;
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "Test Image Content".getBytes()
+        );
+
+        when(projectService.getProject(eq(PROJECT_ID), eq(USER_ID))).thenReturn(projectResponseDto);
+        doNothing().when(projectService).uploadCoverImage(projectId, file);
+
+        mockMvc.perform(get("/api/v1/projects/" + PROJECT_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(PROJECT_ID))
+                .andExpect(jsonPath("$.description").value(PROJECT_NAME));
+        mockMvc.perform(multipart("/api/v1/projects/{projectId}/cover", projectId)
+                        .file(file))
+                .andExpect(status().isOk());
+
+        verify(projectService).getProject(eq(PROJECT_ID), eq(USER_ID));
+        verify(projectService, times(1)).uploadCoverImage(projectId, file);
     }
 }
