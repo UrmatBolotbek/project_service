@@ -46,6 +46,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
 
     /**
      * Test containers

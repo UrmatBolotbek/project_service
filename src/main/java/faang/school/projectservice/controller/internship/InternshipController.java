@@ -4,50 +4,63 @@ import faang.school.projectservice.dto.internship.InternshipDto;
 import faang.school.projectservice.dto.internship.InternshipFilterDto;
 import faang.school.projectservice.dto.internship.InternshipUpdateDto;
 import faang.school.projectservice.service.internship.InternshipService;
-import faang.school.projectservice.validator.internship_validator.InternshipValidator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("api/v1/internships")
 @RequiredArgsConstructor
 public class InternshipController {
-
     private final InternshipService internshipService;
-    private final InternshipValidator validator;
 
-    public void addInternship(InternshipDto internshipDto) {
-        validator.validateDescriptionAndName(internshipDto);
-        validator.validateQuantityOfMembers(internshipDto);
-        validator.validateTeamRole(internshipDto);
-        validator.validateOfStatusInternship(internshipDto);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addInternship(@Valid @RequestBody InternshipDto internshipDto) {
         internshipService.addInternship(internshipDto);
     }
 
-    public void updateInternship(InternshipUpdateDto internshipUpdateDto) {
-        validator.validateOfStatusUpdateInternship(internshipUpdateDto);
-        validator.validateTeamRole(internshipUpdateDto);
+    @PutMapping
+    public void updateInternship(@Valid @RequestBody InternshipUpdateDto internshipUpdateDto) {
         internshipService.updateInternship(internshipUpdateDto);
     }
 
-    public List<InternshipDto> getInternshipsOfProjectWithFilters(long projectId, InternshipFilterDto filters) {
-        return internshipService.getInternshipsOfProjectWithFilters(projectId, filters);
+    @GetMapping("/{projectId}")
+    public List<InternshipDto> getInternshipsOfProjectWithFilters(@PathVariable long projectId, @ModelAttribute InternshipFilterDto filter) {
+        return internshipService.getInternshipsOfProjectWithFilters(projectId, filter);
     }
 
+    @GetMapping
     public List<InternshipDto> getAllInternships() {
         return internshipService.getAllInternships();
     }
 
-    public InternshipDto getInternshipById(long internshipId) {
-      return internshipService.getInternshipById(internshipId);
+    @GetMapping("/{internshipId}")
+    public InternshipDto getInternshipById(@PathVariable long internshipId) {
+        return internshipService.getInternshipById(internshipId);
     }
 
-    public void updateStatusOfIntern(long internshipId, long internId) {
+    @PutMapping("/{internshipId}/interns/{internId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateStatusOfIntern(@PathVariable long internshipId, @PathVariable long internId) {
         internshipService.updateStatusOfIntern(internshipId, internId);
     }
 
-    public void deleteInternFromInternship(long internshipId, long internId) {
+    @DeleteMapping("/{internshipId}/interns/{internId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInternFromInternship(@PathVariable long internshipId, @PathVariable long internId) {
         internshipService.deleteInternFromInternship(internshipId, internId);
     }
 }
