@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +45,15 @@ public class ProjectController {
     private final UserContext userContext;
 
     @Operation(summary = "Upload project cover image", description = "Uploads a cover image for the specified project.")
+
+    @PostMapping("/{projectId}/cover")
+    public ResponseEntity<Void> uploadCoverImage(
+            @PathVariable @NotNull(message = "ProjectId can't be null") Long projectId,
+            @RequestParam("file") MultipartFile file) {
+        projectService.uploadCoverImage(projectId, file);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(
             summary = "Create a new project",
             description = "Create and save a new project in the system."
@@ -57,12 +65,6 @@ public class ProjectController {
         return projectService.create(projectRequestDto, ownerId);
     }
 
-    @PostMapping("/{projectId}/cover")
-    public ResponseEntity<Void> uploadCoverImage(
-            @PathVariable @NotNull(message = "ProjectId can't be null") Long projectId,
-            @RequestParam("file") MultipartFile file) {
-        projectService.uploadCoverImage(projectId, file);
-        return ResponseEntity.ok().build();
     @Operation(
             summary = "Update an existing project",
             description = "Update details of an existing project by its ID.",

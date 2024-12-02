@@ -64,12 +64,12 @@ public class ProjectControllerTest {
         when(projectService.create(any(), eq(USER_ID))).thenReturn(projectResponseDto);
 
         String validJsonRequest = """
-            {
-                "name": "%s",
-                "description": "Project Description",
-                "visibility": "PUBLIC"
-            }
-            """.formatted(PROJECT_NAME);
+                {
+                    "name": "%s",
+                    "description": "Project Description",
+                    "visibility": "PUBLIC"
+                }
+                """.formatted(PROJECT_NAME);
 
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,10 +86,10 @@ public class ProjectControllerTest {
         when(projectService.update(eq(PROJECT_ID), eq(USER_ID), any())).thenReturn(projectResponseDto);
 
         String validJsonRequest = """
-            {
-                "description": "%s"
-            }
-            """.formatted(UPDATED_PROJECT_DESC);
+                {
+                    "description": "%s"
+                }
+                """.formatted(UPDATED_PROJECT_DESC);
 
         mockMvc.perform(put("/api/v1/projects/" + PROJECT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +113,22 @@ public class ProjectControllerTest {
 
         verify(projectService).getProjects(any(), eq(USER_ID));
     }
-    void testUploadCoverImage() throws Exception {
+
+    @Test
+    public void testGetProject() throws Exception {
+        when(projectService.getProject(eq(PROJECT_ID), eq(USER_ID))).thenReturn(projectResponseDto);
+
+        mockMvc.perform(get("/api/v1/projects/" + PROJECT_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(PROJECT_ID))
+                .andExpect(jsonPath("$.description").value(PROJECT_NAME));
+
+        verify(projectService).getProject(eq(PROJECT_ID), eq(USER_ID));
+    }
+
+    @Test
+    public void testUploadCoverImage() throws Exception {
         Long projectId = 1L;
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -122,8 +137,6 @@ public class ProjectControllerTest {
                 "Test Image Content".getBytes()
         );
 
-    @Test
-    public void testGetProject() throws Exception {
         when(projectService.getProject(eq(PROJECT_ID), eq(USER_ID))).thenReturn(projectResponseDto);
         doNothing().when(projectService).uploadCoverImage(projectId, file);
 
@@ -139,5 +152,4 @@ public class ProjectControllerTest {
         verify(projectService).getProject(eq(PROJECT_ID), eq(USER_ID));
         verify(projectService, times(1)).uploadCoverImage(projectId, file);
     }
-}
 }
