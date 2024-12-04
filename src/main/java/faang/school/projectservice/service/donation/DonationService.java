@@ -4,8 +4,10 @@ import faang.school.projectservice.dto.client.PaymentResponse;
 import faang.school.projectservice.dto.donation.DonationFilterDto;
 import faang.school.projectservice.dto.donation.DonationRequestDto;
 import faang.school.projectservice.dto.donation.DonationResponseDto;
+import faang.school.projectservice.event.FundRaisedEvent;
 import faang.school.projectservice.mapper.donation.DonationMapper;
 import faang.school.projectservice.model.Donation;
+import faang.school.projectservice.publisher.FundRaisedEventPublisher;
 import faang.school.projectservice.repository.DonationRepository;
 import faang.school.projectservice.service.donation.filter.DonationFilter;
 import faang.school.projectservice.service.payment.PaymentService;
@@ -29,6 +31,7 @@ public class DonationService {
     private final PaymentService paymentService;
     private final DonationMapper donationMapper;
     private final List<DonationFilter> donationFilters;
+    private final FundRaisedEventPublisher fundRaisedEventPublisher;
 
     @Transactional
     public DonationResponseDto sendDonation(long userId, DonationRequestDto donationRequestDto) {
@@ -42,6 +45,8 @@ public class DonationService {
         Donation donation = donationMapper.toEntity(donationRequestDto);
         donation = donationRepository.save(donation);
         log.info("Donation saved successfully with ID: {}", donation.getId());
+
+        publishFundRaisedEvent(donation);
 
         return donationMapper.toDto(donation);
     }
@@ -71,5 +76,15 @@ public class DonationService {
                 .sorted(Comparator.comparing(Donation::getDonationTime))
                 .map(donationMapper::toDto)
                 .toList();
+    }
+
+    private void publishFundRaisedEvent(Donation donation) {
+        FundRaisedEvent fundRaisedEvent = FundRaisedEvent.builder()
+                .userId(donation.getUserId())
+                .projectId(donation.getCampaign().getProject().getId())
+                .amount(donation.getAmount())
+                .donatedAt(donation.getDonationTime())
+                .build();
+        fundRaisedEventPublisher.publish(fundRaisedEvent);
     }
 }

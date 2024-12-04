@@ -24,6 +24,8 @@ spring:
       channels:
         calculations_channel:
           name: calculations_channel
+        fund-raised-channel:
+          name: fund-raised-topic
 
 server:
   port: 8082
