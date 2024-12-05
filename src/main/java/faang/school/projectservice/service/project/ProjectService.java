@@ -96,7 +96,7 @@ public class ProjectService {
                     " to the private project with ID %d.", userId, projectId));
         }
         if (project.getOwnerId() != userId) {
-            viewPublisher.publish(new ProjectViewEvent(projectId,userId, LocalDateTime.now()));
+            viewPublisher.publish(new ProjectViewEvent(projectId, userId, LocalDateTime.now()));
             log.info("The user's {} view of the project with ID {}" +
                     " event was sent successfully to the redis ", userId, projectId);
         }
