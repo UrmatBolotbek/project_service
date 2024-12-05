@@ -4,12 +4,14 @@ import faang.school.projectservice.dto.project.ProjectFilterDto;
 import faang.school.projectservice.dto.project.ProjectRequestDto;
 import faang.school.projectservice.dto.project.ProjectResponseDto;
 import faang.school.projectservice.dto.project.ProjectUpdateDto;
+import faang.school.projectservice.dto.project.ProjectViewEvent;
 import faang.school.projectservice.exception.project.ForbiddenAccessException;
 import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.mapper.project.ProjectServiceMapper;
 import faang.school.projectservice.exception.FileProcessingException;
 import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.ProjectVisibility;
+import faang.school.projectservice.publisher.ProjectViewPublisher;
 import faang.school.projectservice.service.project.filter.ProjectFilter;
 import faang.school.projectservice.validator.project.ProjectValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceTest {
     private static final long PROJECT_ID = 1L;
-    private static final long OWNER_ID = 1L;
+    private static final long OWNER_ID = 4L;
     private static final long USER_ID = 2L;
     private static final String PROJECT_NAME = "Test Project";
 
@@ -56,6 +57,9 @@ public class ProjectServiceTest {
 
     @Mock
     private ProjectRepository projectRepository;
+
+    @Mock
+    private ProjectViewPublisher projectViewPublisher;
 
     @Mock
     private ProjectJpaRepository projectJpaRepository;
@@ -90,6 +94,7 @@ public class ProjectServiceTest {
     public void setUp() {
         project = Project.builder()
                 .id(PROJECT_ID)
+                .ownerId(OWNER_ID)
                 .name(PROJECT_NAME)
                 .visibility(ProjectVisibility.PRIVATE)
                 .build();
@@ -158,6 +163,8 @@ public class ProjectServiceTest {
         verify(projectValidator).validateProject(PROJECT_ID);
         verify(projectValidator).isVisible(project, USER_ID);
         verify(projectMapper).toDto(project);
+        ProjectViewEvent viewEvent = new ProjectViewEvent(PROJECT_ID, USER_ID, null);
+        verify(projectViewPublisher).publish(refEq(viewEvent,"eventTime"));
     }
 
     @Test
