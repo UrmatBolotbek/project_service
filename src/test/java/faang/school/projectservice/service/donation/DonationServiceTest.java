@@ -53,7 +53,6 @@ public class DonationServiceTest {
     private static final PaymentStatus PAYMENT_STATUS = PaymentStatus.SUCCESS;
     private static final int VERIFICATION_CODE = 12345;
     private static final String MESSAGE = "Success";
-
     private static final Long PROJECT_ID = 4L;
 
     @Mock
@@ -92,7 +91,6 @@ public class DonationServiceTest {
         Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
                 .project(project)
-                .build();
 
         donation = Donation.builder()
                 .id(DONATION_ID)

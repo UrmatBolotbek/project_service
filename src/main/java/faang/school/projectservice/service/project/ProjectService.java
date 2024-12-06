@@ -4,11 +4,13 @@ import faang.school.projectservice.dto.project.ProjectFilterDto;
 import faang.school.projectservice.dto.project.ProjectRequestDto;
 import faang.school.projectservice.dto.project.ProjectResponseDto;
 import faang.school.projectservice.dto.project.ProjectUpdateDto;
+import faang.school.projectservice.dto.project.ProjectViewEvent;
 import faang.school.projectservice.exception.project.ForbiddenAccessException;
 import faang.school.projectservice.jpa.ProjectJpaRepository;
 import faang.school.projectservice.mapper.project.ProjectServiceMapper;
 import faang.school.projectservice.exception.FileProcessingException;
 import faang.school.projectservice.model.Project;
+import faang.school.projectservice.publisher.ProjectViewPublisher;
 import faang.school.projectservice.service.project.filter.ProjectFilter;
 import faang.school.projectservice.validator.project.ProjectValidator;
 import faang.school.projectservice.repository.ProjectRepository;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -37,6 +40,7 @@ public class ProjectService {
     private final ProjectServiceMapper projectMapper;
     private final List<ProjectFilter> projectFilters;
     private final ProjectRepository projectRepository;
+    private final ProjectViewPublisher viewPublisher;
     private final S3Service s3Service;
     private final ImageService imageService;
     private final CoverValidator coverValidator;
@@ -90,6 +94,11 @@ public class ProjectService {
         if (!projectValidator.isVisible(project, userId)) {
             throw new ForbiddenAccessException(String.format("User with ID %d does not have access" +
                     " to the private project with ID %d.", userId, projectId));
+        }
+        if (project.getOwnerId() != userId) {
+            viewPublisher.publish(new ProjectViewEvent(projectId, userId, LocalDateTime.now()));
+            log.info("The user's {} view of the project with ID {}" +
+                    " event was sent successfully to the redis ", userId, projectId);
         }
 
         log.info("Returning project with ID {} for user with ID {}", projectId, userId);
