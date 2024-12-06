@@ -91,6 +91,7 @@ public class DonationServiceTest {
         Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
                 .project(project)
+                .build();
 
         donation = Donation.builder()
                 .id(DONATION_ID)
