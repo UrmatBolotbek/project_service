@@ -4,11 +4,14 @@ import faang.school.projectservice.dto.client.PaymentResponse;
 import faang.school.projectservice.dto.donation.DonationFilterDto;
 import faang.school.projectservice.dto.donation.DonationRequestDto;
 import faang.school.projectservice.dto.donation.DonationResponseDto;
+import faang.school.projectservice.dto.event.FundRaisedEvent;
 import faang.school.projectservice.mapper.donation.DonationMapper;
 import faang.school.projectservice.model.Campaign;
 import faang.school.projectservice.model.Donation;
+import faang.school.projectservice.model.Project;
 import faang.school.projectservice.model.payment.Currency;
 import faang.school.projectservice.model.payment.PaymentStatus;
+import faang.school.projectservice.publisher.FundRaisedEventPublisher;
 import faang.school.projectservice.repository.DonationRepository;
 import faang.school.projectservice.service.donation.filter.DonationFilter;
 import faang.school.projectservice.service.payment.PaymentService;
@@ -50,6 +53,7 @@ public class DonationServiceTest {
     private static final PaymentStatus PAYMENT_STATUS = PaymentStatus.SUCCESS;
     private static final int VERIFICATION_CODE = 12345;
     private static final String MESSAGE = "Success";
+    private static final Long PROJECT_ID = 4L;
 
     @Mock
     private DonationValidator donationValidator;
@@ -66,6 +70,9 @@ public class DonationServiceTest {
     @Mock
     private PaymentService paymentService;
 
+    @Mock
+    FundRaisedEventPublisher fundRaisedEventPublisher;
+
     @InjectMocks
     private DonationService donationService;
 
@@ -73,11 +80,17 @@ public class DonationServiceTest {
     private DonationRequestDto donationRequestDto;
     private DonationResponseDto donationResponseDto;
     private PaymentResponse paymentResponse;
+    private FundRaisedEvent fundRaisedEvent;
 
     @BeforeEach
     public void setUp() {
+        Project project = Project.builder()
+                .id(PROJECT_ID)
+                .build();
+
         Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
+                .project(project)
                 .build();
 
         donation = Donation.builder()
@@ -114,6 +127,13 @@ public class DonationServiceTest {
                 .currency(CURRENCY)
                 .message(MESSAGE)
                 .build();
+
+        fundRaisedEvent = FundRaisedEvent.builder()
+                .userId(donation.getUserId())
+                .projectId(donation.getCampaign().getProject().getId())
+                .amount(donation.getAmount())
+                .donatedAt(donation.getDonationTime())
+                .build();
     }
 
     @Test
@@ -131,6 +151,7 @@ public class DonationServiceTest {
         verify(paymentService).sendDonation(donationRequestDto);
         verify(donationValidator).checkPaymentResponse(paymentResponse, USER_ID, CAMPAIGN_ID);
         verify(donationRepository).save(any(Donation.class));
+        verify(fundRaisedEventPublisher).publish(fundRaisedEvent);
         verify(donationMapper).toDto(donation);
     }
 
