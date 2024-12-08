@@ -22,12 +22,9 @@ spring:
       port: 6379
       host: localhost
       channels:
-        project-view-channel:
-          name: project_view
-        calculations_channel:
-          name: calculations_channel
-        fund-raised-channel:
-          name: fund-raised-topic
+        project-view-channel: project_view
+        calculations_channel: calculations_channel
+        fund-raised-channel: fund-raised-topic
 
 server:
   port: 8082

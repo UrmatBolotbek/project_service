@@ -4,7 +4,7 @@ import faang.school.projectservice.dto.client.PaymentResponse;
 import faang.school.projectservice.dto.donation.DonationFilterDto;
 import faang.school.projectservice.dto.donation.DonationRequestDto;
 import faang.school.projectservice.dto.donation.DonationResponseDto;
-import faang.school.projectservice.event.FundRaisedEvent;
+import faang.school.projectservice.dto.event.FundRaisedEvent;
 import faang.school.projectservice.mapper.donation.DonationMapper;
 import faang.school.projectservice.model.Campaign;
 import faang.school.projectservice.model.Donation;
