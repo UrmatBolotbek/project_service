@@ -40,10 +40,6 @@ The core `Project` entity includes, but is not limited to, the following fields:
 
 ---
 
-## Service Template
-
-This service is built using our standard Spring Boot project template.
-
 ### Technologies Used
 
 - [Spring Boot](https://spring.io/projects/spring-boot) – Main framework for building the application.
