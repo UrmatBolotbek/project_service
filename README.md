@@ -1,107 +1,68 @@
-# Service Template
+# Project Service
 
-Стандартный шаблон проекта на SpringBoot
+**Helping startup creators to build great teams.**
 
-# Использованные технологии
+Project Service is a core microservice within our integrated social network application. It enables users to create, manage, and collaborate on projects. In our platform, projects are central to organizing ideas, tasks, and resources—helping startup creators build great teams and grow their ventures.
 
-* [Spring Boot](https://spring.io/projects/spring-boot) – как основной фрэймворк
-* [PostgreSQL](https://www.postgresql.org/) – как основная реляционная база данных
-* [Redis](https://redis.io/) – как кэш и очередь сообщений через pub/sub
-* [testcontainers](https://testcontainers.com/) – для изолированного тестирования с базой данных
-* [Liquibase](https://www.liquibase.org/) – для ведения миграций схемы БД
-* [Gradle](https://gradle.org/) – как система сборки приложения
+---
 
-# База данных
+## Overview
 
-* База поднимается в отдельном сервисе [infra](../infra)
-* Redis поднимается в единственном инстансе тоже в [infra](../infra)
-* Liquibase сам накатывает нужные миграции на голый PostgreSql при старте приложения
-* В тестах используется [testcontainers](https://testcontainers.com/), в котором тоже запускается отдельный инстанс
-  postgres
-* В коде продемонстрирована работа как с JdbcTemplate, так и с JPA (Hibernate)
+- **Project Management:**  
+  Create and maintain projects with detailed attributes such as name, description, storage limits, cover images, and status. Projects support parent-child relationships to organize complex initiatives.
 
-# Как начать разработку начиная с шаблона?
+- **Collaboration and Integration:**  
+  Integrated with other microservices (e.g., user_service, team management, post_service) to provide a seamless social networking experience where users can share updates, post content, and collaborate on projects.
 
-1. Сначала нужно склонировать этот репозиторий
+- **Dynamic and Extensible:**  
+  Designed to handle growing amounts of project data while remaining flexible enough to accommodate new features as the platform evolves.
 
-```shell
-git clone https://github.com/FAANG-School/ServiceTemplate
-```
+---
 
-2. Далее удаляем служебную директорию для git
+## Data Model
 
-```shell
-# Переходим в корневую директорию проекта
-cd ServiceTemplate
-rm -rf .git
-```
+The core `Project` entity includes, but is not limited to, the following fields:
 
-3. Далее нужно создать совершенно пустой репозиторий в github/gitlab
+- **ID, Name & Description:**  
+  Unique identifier, project name (max 128 characters), and a detailed description (up to 4096 characters).
 
-4. Создаём новый репозиторий локально и коммитим изменения
+- **Storage Management:**  
+  Tracks current and maximum storage size for project data.
 
-```shell
-git init
-git remote add origin <link_to_repo>
-git add .
-git commit -m "<msg>"
-```
+- **Ownership and Hierarchy:**  
+  Contains the owner ID, supports parent-child project relationships, and links to teams, tasks, and resources.
 
-Готово, можно начинать работу!
+- **Timestamps and Status:**  
+  Automatically managed creation and update timestamps, project status (e.g., ACTIVE, INACTIVE) and visibility settings (e.g., PUBLIC, PRIVATE).
 
-# Как запустить локально?
+- **Additional Associations:**  
+  Supports associations with teams, schedules, stages, vacancies, moments, and meetings to facilitate comprehensive project management.
 
-Сначала нужно развернуть базу данных из директории [infra](../infra)
+---
 
-Далее собрать gradle проект
+## Service Template
 
-```shell
-# Нужно запустить из корневой директории, где лежит build.gradle.kts
-gradle build
-```
+This service is built using our standard Spring Boot project template.
 
-Запустить jar'ник
+### Technologies Used
 
-```shell
-java -jar build/libs/ServiceTemplate-1.0.jar
-```
+- [Spring Boot](https://spring.io/projects/spring-boot) – Main framework for building the application.
+- [PostgreSQL](https://www.postgresql.org/) – Primary relational database.
+- [Redis](https://redis.io/) – Used as a cache and for message queuing via pub/sub.
+- [Testcontainers](https://testcontainers.com/) – For isolated testing with a real database.
+- [Liquibase](https://www.liquibase.org/) – For managing database schema migrations.
+- [Gradle](https://gradle.org/) – Build system.
 
-Но легче всё это делать через IDE
+### Database
 
-# Код
+- The PostgreSQL database is managed in a separate service ([infra](../infra)).
+- Redis is deployed as a single instance in the [infra](../infra) service.
+- Liquibase automatically applies the necessary migrations to a bare PostgreSQL instance at application startup.
+- Integration tests use [Testcontainers](https://testcontainers.com/) to launch an isolated PostgreSQL instance.
+- The code demonstrates data access using both JdbcTemplate and JPA (Hibernate).
 
-RESTful приложения калькулятор с единственным endpoint'ом, который принимает 2 числа и выдает результаты их сложения,
-вычитаяни, умножения и деления
+### Conclusion
 
-* Обычная трёхслойная
-  архитектура – [Controller](src/main/java/faang/school/servicetemplate/controller), [Service](src/main/java/faang/school/servicetemplate/service), [Repository](src/main/java/faang/school/servicetemplate/repository)
-* Слой Repository реализован и на jdbcTemplate, и на JPA (Hibernate)
-* Написан [GlobalExceptionHandler](src/main/java/faang/school/servicetemplate/controller/GlobalExceptionHandler.java)
-  который умеет возвращать ошибки в формате `{"code":"CODE", "message": "message"}`
-* Используется TTL кэширование вычислений
-  в [CalculationTtlCacheService](src/main/java/faang/school/servicetemplate/service/cache/CalculationTtlCacheService.java)
-* Реализован простой Messaging через [Redis pub/sub](https://redis.io/docs/manual/pubsub/)
-  * [Конфигурация](src/main/java/faang/school/servicetemplate/config/RedisConfig.java) –
-    сетапится [RedisTemplate](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html) –
-    класс, для удобной работы с Redis силами Spring
-  * [Отправитель](src/main/java/faang/school/servicetemplate/service/messaging/RedisCalculationPublisher.java) – генерит
-    рандомные запросы и отправляет в очередь
-  * [Получатель](src/main/java/faang/school/servicetemplate/service/messaging/RedisCalculationSubscriber.java) –
-    получает запросы и отправляет задачи асинхронно выполняться
-    в [воркер](src/main/java/faang/school/servicetemplate/service/worker/CalculationWorker.java)
+Project Service is an integral part of our social network platform, enabling startup creators to effectively manage and collaborate on projects. Its robust design and seamless integration with other microservices provide a powerful foundation for building great teams.
 
-# Тесты
-
-Написаны только для единственного REST endpoint'а
-* SpringBootTest
-* MockMvc
-* Testcontainers
-* AssertJ
-* JUnit5
-* Parameterized tests
-
-# TODO
-
-* Dockerfile, который подключается к сети запущенной postgres в docker-compose
-* Redis connectivity
-* ...
+---
